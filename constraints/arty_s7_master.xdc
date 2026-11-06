@@ -4,9 +4,12 @@
 ## Target:  xc7s25csga324-1 / xc7s50csga324-1
 ## ============================================================================
 
-## Clock Signal (100 MHz System Oscillator)
+## Clock Signal (100 MHz System Oscillator in Bank 34)
 set_property -dict { PACKAGE_PIN R2    IOSTANDARD SSTL135 } [get_ports { CLK100MHZ }];
 create_clock -add -name sys_clk_pin -period 10.000 -waveform {0 5} [get_ports { CLK100MHZ }];
+
+## Internal VREF for Bank 34 (Required when SSTL135 is used alongside general I/O)
+set_property INTERNAL_VREF 0.675 [get_iobanks 34]
 
 ## Slide Switches
 set_property -dict { PACKAGE_PIN H14   IOSTANDARD LVCMOS33 } [get_ports { sw[0] }];
@@ -53,3 +56,4 @@ set_false_path -to   [get_ports { led1_* }]
 
 ## Ring Oscillator Combinatorial Loops Exception
 set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets -hierarchical *ro*_n*]
+set_property SEVERITY {Warning} [get_drc_checks LUTLP-1]

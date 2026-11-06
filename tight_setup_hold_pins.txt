@@ -1,0 +1,8 @@
++====================+===================+========================================================+
+| Launch Setup Clock | Launch Hold Clock | Pin                                                    |
++====================+===================+========================================================+
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[0].u_neuron/spike_out_reg/D |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[5].u_neuron/spike_out_reg/D |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[2].u_neuron/spike_out_reg/D |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[6].u_neuron/spike_out_reg/D |
++--------------------+-------------------+--------------------------------------------------------+
