@@ -1,0 +1,26 @@
+# Vivado generated files and logs
+*.log
+*.jou
+*.pb
+*.wdb
+*.dcp
+*.rpt
+.Xil/
+xsim.dir/
+synth_check_out/
+build/
+*.backup.log
+*.backup.jou
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

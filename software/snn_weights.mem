@@ -1,0 +1,10 @@
+// SYNAPSE-7 Quantized Synaptic Weights for Spartan-7 BRAM
+// Format: 8x8 signed 8-bit hex values
+39 EF 42 71 FE 69 1F E8 
+3F C2 0F 97 F4 AF BC 65 
+09 E6 F6 1E EF 25 BF E6 
+06 1C EF 12 0D 30 FD E8 
+13 D2 37 0E B4 D7 D9 CB 
+D5 EA FE FA 0C 25 E1 37 
+2C 30 AA 57 4E 78 FE BD 
+43 09 C3 EA 49 E6 07 EC 

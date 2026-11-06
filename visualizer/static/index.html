@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNAPSE-7 // Quantum-Neuromorphic Hardware Telemetry HUD</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <!-- Top System Header Bar -->
+    <header class="system-header">
+        <div class="header-left">
+            <div class="logo-badge">SYNAPSE-7</div>
+            <div class="header-title">
+                <h1>QUANTUM-NEUROMORPHIC SECURITY CO-PROCESSOR</h1>
+                <p>Xilinx Spartan-7 (XC7S25-CSGA324) // Digilent Arty S7 Zero-Trust Core</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="status-indicator">
+                <span class="pulse-dot active" id="conn-dot"></span>
+                <span id="conn-status">CONNECTING...</span>
+            </div>
+            <div class="metric-chip">
+                <span class="chip-label">SOURCE:</span>
+                <span class="chip-val" id="source-val">INIT</span>
+            </div>
+            <div class="metric-chip">
+                <span class="chip-label">SEQ:</span>
+                <span class="chip-val" id="seq-val">000</span>
+            </div>
+            <div class="metric-chip">
+                <span class="chip-label">TRIPWIRE:</span>
+                <span class="chip-val trip-safe" id="tripwire-badge">SECURE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <main class="dashboard-grid">
+        
+        <!-- Panel 1: SNN Spike Raster Matrix -->
+        <section class="card raster-card">
+            <div class="card-header">
+                <h2>NEUROMORPHIC SPIKE RASTER PLOT</h2>
+                <span class="tag">8x PARALLEL LIF CORES</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="rasterCanvas" width="560" height="200"></canvas>
+            </div>
+            <div class="card-footer">
+                <div class="channel-labels">
+                    <span>N0</span><span>N1</span><span>N2</span><span>N3</span>
+                    <span>N4</span><span>N5</span><span>N6</span><span>N7</span>
+                </div>
+                <div class="footer-legend">
+                    <span class="legend-dot spike-color"></span> Firing Event (t)
+                    <span class="legend-dot leak-color"></span> Quiescent
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 2: LIF Neuron 0 Membrane Potential -->
+        <section class="card vmem-card">
+            <div class="card-header">
+                <h2>MEMBRANE POTENTIAL DYNAMICS (V<sub>mem</sub>)</h2>
+                <span class="tag">V<sub>th</sub> = 120 (SATURATE & RESET)</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="vmemCanvas" width="560" height="200"></canvas>
+            </div>
+            <div class="vmem-metrics">
+                <div class="metric-box">
+                    <span class="label">CURRENT V<sub>mem</sub></span>
+                    <span class="value" id="vmem-val">0 mV</span>
+                </div>
+                <div class="metric-box">
+                    <span class="label">LEAK COEFFICIENT (&alpha;)</span>
+                    <span class="value">0.125 (2<sup>-3</sup>)</span>
+                </div>
+                <div class="metric-box">
+                    <span class="label">REFRACTORY PERIOD</span>
+                    <span class="value">4 CYCLES</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 3: Post-Quantum NTT Accelerator -->
+        <section class="card pqc-card">
+            <div class="card-header">
+                <h2>POST-QUANTUM CRYPTOGRAPHY ENGINE</h2>
+                <span class="tag">NIST FIPS 203 (ML-KEM / KYBER)</span>
+            </div>
+            <div class="pqc-body">
+                <div class="pqc-stats">
+                    <div class="stat-group">
+                        <span class="stat-label">POLYNOMIAL RING</span>
+                        <span class="stat-highlight">&Zopf;<sub>3329</sub>[X] / (X<sup>256</sup> + 1)</span>
+                    </div>
+                    <div class="stat-group">
+                        <span class="stat-label">MODULUS q</span>
+                        <span class="stat-val">3,329</span>
+                    </div>
+                    <div class="stat-group">
+                        <span class="stat-label">NTT ARITHMETIC</span>
+                        <span class="stat-val">Cooley-Tukey Radix-2</span>
+                    </div>
+                    <div class="stat-group">
+                        <span class="stat-label">CUMULATIVE BUTTERFLIES</span>
+                        <span class="stat-highlight" id="pqc-cycles-val">0</span>
+                    </div>
+                </div>
+                <div class="butterfly-visualizer">
+                    <div class="butterfly-node">u<sub>in</sub></div>
+                    <div class="butterfly-arrow">&searr;</div>
+                    <div class="butterfly-mult">&otimes; &omega;<sup>k</sup> mod q</div>
+                    <div class="butterfly-arrow">&nearr;</div>
+                    <div class="butterfly-node">u<sub>out</sub></div>
+                </div>
+                <div class="pqc-entropy">
+                    <span class="stat-label">RO-TRNG PHYSICAL ENTROPY:</span>
+                    <div class="entropy-bar-track">
+                        <div class="entropy-bar-fill" id="entropy-bar" style="width: 98%;"></div>
+                    </div>
+                    <span class="stat-val" id="entropy-val">0.985 / 1.000 (Shannon)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 4: Physical Silicon Health & Side-Channel Monitor -->
+        <section class="card xadc-card">
+            <div class="card-header">
+                <h2>SPARTAN-7 SILICON HEALTH (XADC)</h2>
+                <span class="tag">1 MSPS 12-BIT TELEMETRY</span>
+            </div>
+            <div class="xadc-grid">
+                <div class="gauge-box">
+                    <span class="gauge-title">DIE TEMPERATURE</span>
+                    <div class="gauge-display" id="temp-gauge">
+                        <span class="gauge-num" id="temp-val">42.5</span>
+                        <span class="gauge-unit">&deg;C</span>
+                    </div>
+                    <div class="gauge-sub" id="temp-status">NOMINAL (< 65&deg;C)</div>
+                </div>
+                <div class="gauge-box">
+                    <span class="gauge-title">VCCINT CORE VOLTAGE</span>
+                    <div class="gauge-display" id="vcc-gauge">
+                        <span class="gauge-num" id="vcc-val">1.008</span>
+                        <span class="gauge-unit">V</span>
+                    </div>
+                    <div class="gauge-sub" id="vcc-status">NOMINAL (1.00V &plusmn;5%)</div>
+                </div>
+            </div>
+            <div class="sidechannel-audit">
+                <div class="audit-item">
+                    <span>DPA Side-Channel Probe:</span>
+                    <span class="badge badge-pass" id="dpa-badge">PASS</span>
+                </div>
+                <div class="audit-item">
+                    <span>Brownout Glitch Guard:</span>
+                    <span class="badge badge-pass" id="glitch-badge">ARMED</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 5: N-HIDS Threat Arbiter & Tripwire Cockpit -->
+        <section class="card threat-card">
+            <div class="card-header">
+                <h2>N-HIDS ZERO-TRUST THREAT ARBITER</h2>
+                <span class="tag">REAL-TIME HARDWARE ENCLAVE</span>
+            </div>
+            <div class="threat-cockpit">
+                <div class="threat-meter-container">
+                    <div class="threat-meter-bar">
+                        <div class="threat-meter-fill" id="threat-fill" style="width: 15%;"></div>
+                    </div>
+                    <div class="threat-score-box">
+                        <span class="score-label">THREAT SCORE</span>
+                        <span class="score-num" id="threat-score-val">15%</span>
+                        <span class="threat-badge safe" id="threat-level-badge">LEVEL: SAFE</span>
+                    </div>
+                </div>
+
+                <!-- Live Attack Emulation Triggers -->
+                <div class="threat-controls">
+                    <span class="control-legend">TACTICAL ATTACK INJECTION & RESPONSE:</span>
+                    <div class="button-group">
+                        <button class="btn btn-normal" onclick="setMode('NORMAL')">NORMAL BASELINE</button>
+                        <button class="btn btn-attack" onclick="setMode('PACKET_BURST')">INJECT SNN ANOMALY BURST</button>
+                        <button class="btn btn-glitch" onclick="setMode('VOLTAGE_GLITCH')">INJECT VCCINT BROWNOUT</button>
+                        <button class="btn btn-laser"  onclick="setMode('THERMAL_FAULT')">INJECT LASER FAULT</button>
+                        <button class="btn btn-reset"  onclick="clearTripwire()">CLEAR TRIPWIRE & RESET</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 6: Live Hex Telemetry & Diagnostic Feed -->
+        <section class="card diag-card">
+            <div class="card-header">
+                <h2>LIVE UART FRAME INSPECTOR</h2>
+                <span class="tag">16-BYTE PACKET STREAM (115200 BAUD)</span>
+            </div>
+            <div class="diag-body">
+                <div class="hex-dump" id="hexDump">
+                    AA 55 00 00 0F 00 42 04 00 00 00 5A 99 9A 00 3C
+                </div>
+                <div class="diag-terminal" id="terminalLog">
+                    [00:00:01] SYNAPSE-7 Hardware Security Module Initialized.<br>
+                    [00:00:02] Connected to Spartan-7 Silicon Enclave.<br>
+                    [00:00:03] Post-Quantum Kyber-3329 NTT Coprocessor Ready.<br>
+                    [00:00:04] N-HIDS Threat Classifier Online.
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="system-footer">
+        <div>SYNAPSE-7 ARCHITECTURE // IIT BHU ADVANCED HARDWARE RESEARCH // ARTY S7-25</div>
+        <div id="fps-counter">60 FPS // LATENCY &lt; 15 ms</div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
