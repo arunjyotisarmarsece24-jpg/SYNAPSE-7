@@ -14,13 +14,48 @@ from ..core.quirk_bridge import QuirkBridge
 from ..qec.steane_code import Steane7QubitCode
 from ..crypto.cyber_vault import CyberVault7, QuantumProofTransaction
 from ..crypto.qkd_bb84 import BB84QKDProtocol
+from ..neuromorphic import SNNTrainingManager, STDPSynapsePool, NeuromorphicQKDGuard
 
 app = Flask(__name__)
 vault = CyberVault7()
+snn_manager = SNNTrainingManager(in_features=16, hidden_features=32, out_features=2, num_timesteps=25)
+stdp_pool = STDPSynapsePool(num_pre=16, num_post=16)
+qkd_guard = NeuromorphicQKDGuard()
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/api/snn/train_step", methods=["POST"])
+def snn_train_step():
+    """Executes one epoch of surrogate-gradient SNN training and returns full temporal raster & membrane traces."""
+    telemetry = snn_manager.train_step()
+    return jsonify(telemetry)
+
+@app.route("/api/snn/stdp_step", methods=["POST"])
+def snn_stdp_step():
+    """Executes online STDP plasticity step across synaptic crossbar."""
+    rng = np.random.default_rng()
+    pre_spikes = (rng.random(16) < 0.25).astype(float)
+    post_spikes = (rng.random(16) < 0.20).astype(float)
+    weights = stdp_pool.step(pre_spikes, post_spikes)
+    return jsonify({
+        "weights": weights.tolist(),
+        "sops_total": stdp_pool.sops_count,
+        "pre_trace": stdp_pool.pre_trace.tolist(),
+        "post_trace": stdp_pool.post_trace.tolist()
+    })
+
+@app.route("/api/snn/guard_inspect", methods=["POST"])
+def snn_guard_inspect():
+    """Runs Neuromorphic QKD guard on arbitrary 16-element analog telemetry vector."""
+    data = request.json or {}
+    vector = data.get("telemetry_vector")
+    if not vector:
+        # Default synthetic attack trace
+        vector = (np.random.normal(0.65, 0.15, size=16)).tolist()
+    result = qkd_guard.inspect_telemetry_trace(np.array(vector, dtype=float))
+    return jsonify(result)
 
 @app.route("/api/simulate", methods=["POST"])
 def simulate():

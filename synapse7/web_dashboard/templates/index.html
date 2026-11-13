@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYNAPSE-7 // Alien Quantum Defense & Quirk Inspector</title>
+    <title>SYNAPSE-7 // Neuromorphic SNN & Quantum Defense Lab</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,15 +13,108 @@
     <header class="cyber-header">
         <div class="logo-zone">
             <h1 class="glitch" data-text="SYNAPSE-7">SYNAPSE-7</h1>
-            <p class="sub-lead">NON-ABELIAN ACCELERATED POST-QUANTUM HARDWARE CORE // ARTY S7 & ESP8266</p>
+            <p class="sub-lead">NEUROMORPHIC SPIKING NEURAL NETWORK & POST-QUANTUM HARDWARE ENGINE // ARTY S7 & ESP8266</p>
         </div>
         <div class="header-badges">
-            <span class="badge badge-glow">SPARTAN-7 READY</span>
-            <span class="badge badge-qec">[[7, 1, 3]] STEANE CODE</span>
-            <span class="badge badge-pqc">128-BIT LATTICE PQC</span>
+            <span class="badge badge-glow">SPARTAN-7 FPGA</span>
+            <span class="badge badge-snn">LIF & ALIF SNN CORE</span>
+            <span class="badge badge-qec">[[7, 1, 3]] STEANE QEC</span>
+            <span class="badge badge-pqc">RING-LWE LATTICE</span>
         </div>
     </header>
 
+    <!-- SECTION 1: MASTER NEUROMORPHIC SNN SPIKE OBSERVATORY (IIT BHU RESEARCH LEVEL) -->
+    <section class="card panel-master-snn">
+        <div class="card-title">
+            <h2>🧠 NEUROMORPHIC SPIKING NEURAL NETWORK (SNN) LIVE OBSERVATORY</h2>
+            <div class="live-indicator"><span class="pulse-dot"></span> <span id="snn-status-text">SYSTEM ONLINE (STBP / STDP ACTIVE)</span></div>
+        </div>
+        <p class="card-desc">
+            Spatio-Temporal Backpropagation (STBP) with Fast-Sigmoid Surrogate Gradients & Online Spike-Timing-Dependent Plasticity (STDP).
+            Directly modeled for 16-bit Fixed-Point Q4.12 hardware acceleration on AMD-Xilinx Spartan-7 DSP48E1 slices.
+        </p>
+
+        <!-- SNN Real-time Metrics Ribbon -->
+        <div class="metrics-ribbon">
+            <div class="metric-item">
+                <span class="m-label">TRAINING EPOCH</span>
+                <span class="m-val" id="metric-epoch">0</span>
+            </div>
+            <div class="metric-item">
+                <span class="m-label">SURROGATE LOSS</span>
+                <span class="m-val" id="metric-loss">0.0000</span>
+            </div>
+            <div class="metric-item">
+                <span class="m-label">DPA DETECTION ACCURACY</span>
+                <span class="m-val highlight-green" id="metric-accuracy">0.0%</span>
+            </div>
+            <div class="metric-item">
+                <span class="m-label">SYNAPTIC OPS (SOPs)</span>
+                <span class="m-val" id="metric-sops">0</span>
+            </div>
+            <div class="metric-item">
+                <span class="m-label">DYNAMIC ENERGY (SNN vs GPU)</span>
+                <span class="m-val highlight-cyan" id="metric-energy">0.00 pJ (38x Savings)</span>
+            </div>
+        </div>
+
+        <!-- SNN Visualizer Triad: Oscilloscope, Raster Plot, Synaptic Heatmap -->
+        <div class="snn-visualizer-grid">
+            <!-- 1. Membrane Potential Oscilloscope -->
+            <div class="viz-box">
+                <div class="viz-header">
+                    <h3>MEMBRANE POTENTIAL OSCILLOSCOPE $V_m(t)$</h3>
+                    <span class="viz-tag">LIF DYNAMICS</span>
+                </div>
+                <canvas id="canvas-oscilloscope" width="460" height="200"></canvas>
+                <div class="viz-legend">
+                    <span class="leg-item"><span class="dot dot-cyan"></span> V_m(t) Neuron 0</span>
+                    <span class="leg-item"><span class="dot dot-pink"></span> V_m(t) Neuron 1</span>
+                    <span class="leg-item"><span class="dot dot-gold"></span> V_th (Threshold)</span>
+                    <span class="leg-item"><span class="dot dot-green"></span> Action Potential</span>
+                </div>
+            </div>
+
+            <!-- 2. Spike Raster Plot -->
+            <div class="viz-box">
+                <div class="viz-header">
+                    <h3>TEMPORAL SPIKE RASTER PLOT (T=25 ms)</h3>
+                    <span class="viz-tag">INPUT / HIDDEN / OUTPUT</span>
+                </div>
+                <canvas id="canvas-raster" width="460" height="200"></canvas>
+                <div class="viz-legend">
+                    <span class="leg-item"><span class="dot dot-blue"></span> Input (16ch)</span>
+                    <span class="leg-item"><span class="dot dot-magenta"></span> Hidden LIF (32ch)</span>
+                    <span class="leg-item"><span class="dot dot-green"></span> Class 0: Benign</span>
+                    <span class="leg-item"><span class="dot dot-red"></span> Class 1: DPA Attack</span>
+                </div>
+            </div>
+
+            <!-- 3. Synaptic Weight Matrix Heatmap -->
+            <div class="viz-box">
+                <div class="viz-header">
+                    <h3>SYNAPTIC WEIGHT CROSSBAR $\mathbf{W} \in \mathbb{R}^{32 \times 16}$</h3>
+                    <span class="viz-tag">PLASTICITY HEATMAP</span>
+                </div>
+                <canvas id="canvas-heatmap" width="460" height="200"></canvas>
+                <div class="viz-legend">
+                    <span class="leg-item">Low Weight (Depression / LTD)</span>
+                    <div class="gradient-bar"></div>
+                    <span class="leg-item">High Weight (Potentiation / LTP)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SNN Interactive Control Console -->
+        <div class="snn-control-bar">
+            <button class="btn-cyber btn-primary" onclick="trainOneEpoch()">⚡ TRAIN 1 EPOCH (STBP)</button>
+            <button class="btn-cyber btn-auto" id="btn-toggle-auto" onclick="toggleAutoTraining()">▶ AUTO-LEARN (CONTINUOUS STREAM)</button>
+            <button class="btn-cyber" onclick="triggerStdpPulse()">🧬 STDP HEBBIAN PLASTICITY STEP</button>
+            <button class="btn-cyber btn-attack" onclick="injectDpaGlitch()">⚠️ INJECT DPA SIDE-CHANNEL GLITCH</button>
+        </div>
+    </section>
+
+    <!-- SECTION 2: QUANTUM COMPUTING, QUIRK BRIDGE & HARDWARE DEFENSE GRID -->
     <main class="grid-container">
         <!-- Panel 1: Quirk Live Circuit Workspace -->
         <section class="card panel-quirk">
@@ -125,9 +218,10 @@
     </main>
 
     <footer class="cyber-footer">
-        <p>SYNAPSE-7 // Research Scholar: Arunjyoti Sarma // IIT (BHU) Department of Electronics Engineering</p>
+        <p>SYNAPSE-7 // Ph.D. Research Scholar: Arunjyoti Sarma // Department of Electronics Engineering, IIT (BHU) Varanasi</p>
     </footer>
 
     <script src="/static/js/quantum_viz.js"></script>
+    <script src="/static/js/snn_viz.js"></script>
 </body>
 </html>
