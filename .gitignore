@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest
+.pytest_cache/
+
+# Vivado / EDA Artifacts
+*.jou
+*.log
+*.wdb
+*.vcd
+.Xil/
+
+# Environment
+.venv
+env/
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
