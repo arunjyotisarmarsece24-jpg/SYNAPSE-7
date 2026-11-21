@@ -5,6 +5,7 @@
 *.wdb
 *.dcp
 *.rpt
+*.vcd
 .Xil/
 xsim.dir/
 synth_check_out/
@@ -16,8 +17,11 @@ build/
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 .venv/
 env/
+venv/
+.env
 
 # OS / Editor
 .DS_Store

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNAPSE-7 // Neuromorphic SNN & Quantum Defense Lab</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Orbitron:wght@500;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="cyber-header">
+        <div class="logo-zone">
+            <h1 class="glitch" data-text="SYNAPSE-7">SYNAPSE-7</h1>
+            <p class="sub-lead">NEUROMORPHIC SPIKING NEURAL NETWORK & POST-QUANTUM HARDWARE ENGINE // ARTY S7 & ESP8266</p>
+        </div>
+        <div class="header-badges">
+            <span class="badge badge-glow">SPARTAN-7 FPGA</span>
+            <span class="badge badge-snn">LIF & ALIF SNN CORE</span>
+            <span class="badge badge-qec">[[7, 1, 3]] STEANE QEC</span>
+            <span class="badge badge-pqc">RING-LWE LATTICE</span>
+        </div>
+    </header>
+
+    <!-- SECTION 1: MASTER NEUROMORPHIC SNN SPIKE OBSERVATORY (IIT BHU RESEARCH LEVEL) -->
+    <section class="card panel-master-snn">
+        <div class="card-title">
+            <h2>🧠 NEUROMORPHIC SPIKING NEURAL NETWORK (SNN) LIVE OBSERVATORY</h2>
+            <div class="live-indicator"><span class="pulse-dot"></span> <span id="snn-status-text">SYSTEM ONLINE (STBP / STDP ACTIVE)</span></div>
+        </div>
+        <p class="card-desc">
+            Spatio-Temporal Backpropagation (STBP) with Fast-Sigmoid Surrogate Gradients & Online Spike-Timing-Dependent Plasticity (STDP).
+            Directly modeled for 16-bit Fixed-Point Q4.12 hardware acceleration on AMD-Xilinx Spartan-7 DSP48E1 slices.
+        </p>
+
+        <!-- SNN Real-time Metrics Ribbon -->
+        <div class="metrics-ribbon">
+            <div class="metric-item">
+                <span class="m-label">TRAINING EPOCH</span>
+                <span class="m-val" id="metric-epoch">0</span>
+            </div>
+            <div class="metric-item">
+                <span class="m-label">SURROGATE LOSS</span>
+                <span class="m-val" id="metric-loss">0.0000</span>
+            </div>
+            <div class="metric-item">
+                <span class="m-label">DPA DETECTION ACCURACY</span>
+                <span class="m-val highlight-green" id="metric-accuracy">0.0%</span>
+            </div>
+            <div class="metric-item">
+                <span class="m-label">SYNAPTIC OPS (SOPs)</span>
+                <span class="m-val" id="metric-sops">0</span>
+            </div>
+            <div class="metric-item">
+                <span class="m-label">DYNAMIC ENERGY (SNN vs GPU)</span>
+                <span class="m-val highlight-cyan" id="metric-energy">0.00 pJ (38x Savings)</span>
+            </div>
+        </div>
+
+        <!-- SNN Visualizer Triad: Oscilloscope, Raster Plot, Synaptic Heatmap -->
+        <div class="snn-visualizer-grid">
+            <!-- 1. Membrane Potential Oscilloscope -->
+            <div class="viz-box">
+                <div class="viz-header">
+                    <h3>MEMBRANE POTENTIAL OSCILLOSCOPE $V_m(t)$</h3>
+                    <span class="viz-tag">LIF DYNAMICS</span>
+                </div>
+                <canvas id="canvas-oscilloscope" width="460" height="200"></canvas>
+                <div class="viz-legend">
+                    <span class="leg-item"><span class="dot dot-cyan"></span> V_m(t) Neuron 0</span>
+                    <span class="leg-item"><span class="dot dot-pink"></span> V_m(t) Neuron 1</span>
+                    <span class="leg-item"><span class="dot dot-gold"></span> V_th (Threshold)</span>
+                    <span class="leg-item"><span class="dot dot-green"></span> Action Potential</span>
+                </div>
+            </div>
+
+            <!-- 2. Spike Raster Plot -->
+            <div class="viz-box">
+                <div class="viz-header">
+                    <h3>TEMPORAL SPIKE RASTER PLOT (T=25 ms)</h3>
+                    <span class="viz-tag">INPUT / HIDDEN / OUTPUT</span>
+                </div>
+                <canvas id="canvas-raster" width="460" height="200"></canvas>
+                <div class="viz-legend">
+                    <span class="leg-item"><span class="dot dot-blue"></span> Input (16ch)</span>
+                    <span class="leg-item"><span class="dot dot-magenta"></span> Hidden LIF (32ch)</span>
+                    <span class="leg-item"><span class="dot dot-green"></span> Class 0: Benign</span>
+                    <span class="leg-item"><span class="dot dot-red"></span> Class 1: DPA Attack</span>
+                </div>
+            </div>
+
+            <!-- 3. Synaptic Weight Matrix Heatmap -->
+            <div class="viz-box">
+                <div class="viz-header">
+                    <h3>SYNAPTIC WEIGHT CROSSBAR $\mathbf{W} \in \mathbb{R}^{32 \times 16}$</h3>
+                    <span class="viz-tag">PLASTICITY HEATMAP</span>
+                </div>
+                <canvas id="canvas-heatmap" width="460" height="200"></canvas>
+                <div class="viz-legend">
+                    <span class="leg-item">Low Weight (Depression / LTD)</span>
+                    <div class="gradient-bar"></div>
+                    <span class="leg-item">High Weight (Potentiation / LTP)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SNN Interactive Control Console -->
+        <div class="snn-control-bar">
+            <button class="btn-cyber btn-primary" onclick="trainOneEpoch()">⚡ TRAIN 1 EPOCH (STBP)</button>
+            <button class="btn-cyber btn-auto" id="btn-toggle-auto" onclick="toggleAutoTraining()">▶ AUTO-LEARN (CONTINUOUS STREAM)</button>
+            <button class="btn-cyber" onclick="triggerStdpPulse()">🧬 STDP HEBBIAN PLASTICITY STEP</button>
+            <button class="btn-cyber btn-attack" onclick="injectDpaGlitch()">⚠️ INJECT DPA SIDE-CHANNEL GLITCH</button>
+        </div>
+    </section>
+
+    <!-- SECTION 2: QUANTUM COMPUTING, QUIRK BRIDGE & HARDWARE DEFENSE GRID -->
+    <main class="grid-container">
+        <!-- Panel 1: Quirk Live Circuit Workspace -->
+        <section class="card panel-quirk">
+            <div class="card-title">
+                <h2>⚡ QUIRK LIVE QUANTUM CIRCUIT EMULATOR</h2>
+                <a id="btn-open-quirk" href="https://algassert.com/quirk" target="_blank" class="btn-neon-small">OPEN IN QUIRK BROWSER ↗</a>
+            </div>
+            <p class="card-desc">Drag or click gates to mutate statevector and inspect live Bloch sphere evolution.</p>
+            
+            <div class="gate-palette">
+                <span class="palette-label">GATE PALETTE:</span>
+                <button class="gate-btn" onclick="addGateToCircuit('H')">H</button>
+                <button class="gate-btn" onclick="addGateToCircuit('X')">X</button>
+                <button class="gate-btn" onclick="addGateToCircuit('Y')">Y</button>
+                <button class="gate-btn" onclick="addGateToCircuit('Z')">Z</button>
+                <button class="gate-btn" onclick="addGateToCircuit('S')">S</button>
+                <button class="gate-btn" onclick="addGateToCircuit('T')">T</button>
+                <button class="gate-btn gate-entangle" onclick="addBellPair()">CREATE BELL PAIR</button>
+                <button class="gate-btn gate-reset" onclick="resetCircuit()">RESET CIRCUIT</button>
+            </div>
+
+            <div id="circuit-wire-display" class="circuit-canvas-container">
+                <!-- Dynamic circuit columns -->
+            </div>
+
+            <div class="bloch-section">
+                <h3>LIVE BLOCH SPHERE PROJECTION (QUBIT 0 & 1)</h3>
+                <div class="bloch-display-grid">
+                    <div class="bloch-box">
+                        <canvas id="blochCanvas0" width="180" height="180"></canvas>
+                        <p id="blochLabel0" class="telemetry-label">q[0]: (x=0, y=0, z=1)</p>
+                    </div>
+                    <div class="bloch-box">
+                        <canvas id="blochCanvas1" width="180" height="180"></canvas>
+                        <p id="blochLabel1" class="telemetry-label">q[1]: (x=0, y=0, z=1)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 2: Steane [[7,1,3]] QEC Stabilizer Lab -->
+        <section class="card panel-qec">
+            <div class="card-title">
+                <h2>🛡️ [[7, 1, 3]] STEANE FAULT-TOLERANT ENGINE</h2>
+                <span class="pulse-dot"></span>
+            </div>
+            <p class="card-desc">CSS Dual-Hamming error correction protecting 1 logical qubit over 7 physical qubits.</p>
+
+            <div class="controls-row">
+                <label>Corrupt Qubit (0-6):
+                    <input type="number" id="steane-qubit-select" min="0" max="6" value="2">
+                </label>
+                <label>Error Type:
+                    <select id="steane-error-type">
+                        <option value="X">Pauli X (Bit-Flip)</option>
+                        <option value="Z">Pauli Z (Phase-Flip)</option>
+                        <option value="Y">Pauli Y (Bit+Phase Flip)</option>
+                    </select>
+                </label>
+                <button class="btn-cyber" onclick="triggerSteaneTest()">INJECT ERROR & REPAIR</button>
+            </div>
+
+            <div id="steane-results" class="console-box">
+                <p class="log-line">> Quantum Register Status: IDLE. Ready for fault injection.</p>
+            </div>
+        </section>
+
+        <!-- Panel 3: BB84 Quantum Key Distribution Link -->
+        <section class="card panel-qkd">
+            <div class="card-title">
+                <h2>🛰️ BB84 QKD OPTICAL LINK INTERCEPTOR</h2>
+            </div>
+            <p class="card-desc">Single-photon polarization key negotiation with Eve intercept detection.</p>
+            <div class="controls-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="qkd-eve-check"> Hostile Intercept (Money Heist Eve)
+                </label>
+                <button class="btn-cyber" onclick="runQkdLink()">TRANSMIT PHOTONS</button>
+            </div>
+            <div id="qkd-results" class="console-box">
+                <p class="log-line">> QKD Link: Ready. Photons buffered.</p>
+            </div>
+        </section>
+
+        <!-- Panel 4: Quantum-Resistant CyberVault-7 Ledger -->
+        <section class="card panel-vault">
+            <div class="card-title">
+                <h2>💰 CYBERVAULT-7: QUANTUM-IMMUNE LEDGER</h2>
+            </div>
+            <p class="card-desc">Lattice Ring-LWE + One-Time-Pad cryptocurrency transaction shield.</p>
+
+            <div class="controls-row">
+                <button class="btn-cyber" onclick="submitQuantumTx()">TRANSACT 777.0 SYN</button>
+                <button class="btn-cyber btn-attack" onclick="runAttackComparison()">SIMULATE SHOR'S HEIST</button>
+            </div>
+
+            <div id="vault-results" class="console-box">
+                <p class="log-line">> Ledger Status: Initialized with Level-7 Defense.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="cyber-footer">
+        <p>SYNAPSE-7 // Ph.D. Research Scholar: Arunjyoti Sarma // Department of Electronics Engineering, IIT (BHU) Varanasi</p>
+    </footer>
+
+    <script src="/static/js/quantum_viz.js"></script>
+    <script src="/static/js/snn_viz.js"></script>
+</body>
+</html>

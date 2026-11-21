@@ -1,4 +1,4 @@
-# SYNAPSE-7: Quantum-Neuromorphic Edge Security Engine
+# SYNAPSE-7: Quantum-Neuromorphic Computing & Post-Quantum Hardware Security
 
 [![Target FPGA](https://img.shields.io/badge/FPGA-Xilinx%20Spartan--7%20(XC7S25%2F50)-blue.svg)](https://www.xilinx.com/products/silicon-devices/fpga/spartan-7.html)
 [![PQC Standard](https://img.shields.io/badge/PQC-NIST%20FIPS%20203%20(ML--KEM%2FKyber)-purple.svg)](https://csrc.nist.gov/pubs/fips/203/final)
@@ -67,15 +67,13 @@ flowchart TD
         QNC -. Q-Spikes & Born Collapse .-> ARB["N-HIDS Threat Arbiter (nhids_threat_arbiter.v)"]
         SNN -. Classical Spikes .-> ARB
         
-        PQC --> MONT["Montgomery Modulo Reducer (Z_3329)"]
-        XADC["Silicon Health Probe (xadc_sidechannel_probe.v)"] --> ARB
-        ARB --> WIRE["Hardware Tripwire Zero-Trust Isolation"]
+        XADC["7-Series XADC (xadc_sidechannel_probe.v)"] -->|Temp & Voltage Glitch| ARB
+        PQC -->|NTT Active Cycles| TEL["Telemetry Framer (telemetry_packetizer.v)"]
         
-        QNC -. P(|1|) & Coherence .-> PKT["Telemetry Packetizer (telemetry_packetizer.v)"]
-        SNN -. V_mem .-> PKT
-        PQC -. NTT Cycles .-> PKT
-        XADC -. Temp / VCCINT .-> PKT
-        ARB -. Threat Score .-> PKT
+        ARB -->|Threat Score & Tripwire| TEL
+        ARB -->|RGB Indicator| LEDS["Board LEDs (LD0-LD5, RGB0-RGB1)"]
+        
+        TEL -->|16-Byte Sync Frame| PKT["0xAA55 Serial Packetizer"]
         
         PKT --> UART["UART Transceiver (uart_tx.v)"]
     end
@@ -157,184 +155,41 @@ SYNAPSE-7 is engineered for both FPGA and standard-cell ASIC tapeout using the i
    ```bash
    spectre +preset=cx +aps +mt=16 cadence/scripts/quantum_memristor_spectre.scs
    ```
-4. **Lab Server & MobaXterm Setup**:
-   See [cadence/README_CADENCE.md](cadence/README_CADENCE.md) for configuring remote X11 forwarding from `dse@172.16.36.157`.
 
 ---
 
-## Free GPU Acceleration Workflow
+## 🚀 Quickstart & Live Visualization
 
-Train and benchmark the Quantum Neuromorphic network on free cloud GPUs:
-
-- **Google Colab (Free NVIDIA T4 GPU)**:
-  Open `software/SYNAPSE7_Quantum_Neuromorphic_Colab.ipynb` directly in Google Colab to train the model and visualize Bloch sphere trajectories with zero local installation.
-- **Local / Lab GPU Server (`172.16.36.157`)**:
-  Check NVIDIA GPUs on your lab server:
-  ```bash
-  nvidia-smi
-  python software/quantum_neuromorphic_sim.py
-  ```
-
----
-
-## Hardware Visualization & Telemetry HUD
-
-SYNAPSE-7 features an interactive, cyber-defense telemetry console accessible directly via your web browser (`http://localhost:8080`).
-
-### Visualizer Features
-1. **Real-Time Spike Raster Plot**: Live scrolling matrix of 8 parallel LIF neuron action potentials across discrete time slices.
-2. **Membrane Potential ($V_{mem}$) Dynamics**: Real-time waveform tracker displaying sub-threshold integration, leakage decay curves, and threshold resets.
-3. **PQC Performance Meter**: Live tally of completed Kyber NTT butterfly arithmetic cycles and RO-TRNG Shannon entropy.
-4. **Physical Silicon Health Gauges**: Direct die temperature readout (°C) and $V_{CCINT}$ voltage rail monitor with glitch violation flags.
-5. **Tactical Threat Controls**: Inject simulated packet bursts, brownout glitches, or laser faults with instant response on the FPGA.
-6. **Dual Mode Support**:
-   - **Hardware Mode**: Connects directly to the Digilent Arty S7 FTDI USB-UART port (`115200 baud`).
-   - **Digital Twin Emulator Mode**: Automatically emulates the exact Spartan-7 RTL telemetry stream if the physical board is disconnected.
-
----
-
-## Spartan-7 Synthesis & Resource Utilization
-
-The design has been verified and synthesized targeting the **Xilinx Spartan-7 XC7S25-CSGA324-1** using **AMD Vivado 2025.2**:
-
-| Resource Type | Used | Available | Utilization (%) |
-| :--- | :---: | :---: | :---: |
-| **Slice LUTs** | **1,348** | 14,600 | **9.23 %** |
-| **Slice Registers** | **543** | 29,200 | **1.86 %** |
-| **F7 Muxes** | **1** | 7,300 | **0.01 %** |
-| **DSP48E1 Blocks** | **Inferred** | 80 | **Optimized** |
-| **Global Clock Buffers (BUFG)** | **1** | 32 | **3.12 %** |
-| **Clock Frequency ($F_{clk}$)** | **100.0 MHz** | - | **Timing Met (10.0 ns)** |
-
-*Note: Leaves >90% of Spartan-7 logic slices free for secondary user applications or multi-layer neural networks.*
-
----
-
-## Repository Structure
-
-```
-SYNAPSE-7/
-├── README.md                      # Complete system documentation & specifications
-├── rtl/                           # Synthesizable SystemVerilog / Verilog RTL
-│   ├── top/
-│   │   └── synapse7_top.v         # Top-level SoC integrating all cores
-│   ├── quantum_neuromorphic/      # Full Quantum Neuromorphic Engine
-│   │   ├── quantum_neuromorphic_core.v   # Top 8-Qubit Quantum Neuromorphic Coprocessor
-│   │   ├── quantum_spiking_neuron.v      # Quantum Leaky Integrate-and-Fire (Q-LIF) Unit
-│   │   └── quantum_synapse_entangler.v   # Multi-Qubit Entanglement & Phase Synapse
-│   ├── neuromorphic/
-│   │   ├── lif_neuron.v           # Leaky Integrate-and-Fire hardware neuron
-│   │   ├── snn_synapse_mesh.v     # 8x8 Synaptic interconnect crossbar
-│   │   └── spike_encoder.v        # Multi-channel rate & temporal spike encoder
-│   ├── quantum_pqc/
-│   │   ├── pqc_ntt_butterfly.v    # NIST ML-KEM Kyber NTT Butterfly accelerator
-│   │   ├── montgomery_reducer.v   # Constant-time Montgomery modulo reducer (q=3329)
-│   │   └── ro_trng_entropy.v      # Multi-Ring Oscillator TRNG silicon entropy source
-│   ├── security/
-│   │   ├── nhids_threat_arbiter.v # Neuromorphic threat score & hardware tripwire
-│   │   └── xadc_sidechannel_probe.v # 7-Series XADC thermal & voltage monitor
-│   └── comms/
-│       ├── uart_tx.v              # High-throughput UART transmitter
-│       ├── uart_rx.v              # Command receiver
-│       └── telemetry_packetizer.v # 16-byte binary telemetry stream packager
-├── cadence/                       # Cadence EDA ASIC Toolchain Scripts
-│   ├── README_CADENCE.md          # Guide for MobaXterm, server GPUs, and Virtuoso
-│   └── scripts/
-│       ├── setup_cadence_env.sh   # Server environment setup & GPU configuration
-│       ├── run_genus_synth.tcl    # Cadence Genus ASIC Synthesis script
-│       ├── run_innovus_pnr.tcl    # Cadence Innovus Place & Route script
-│       └── quantum_memristor_spectre.scs # Cadence Spectre Quantum Memristor Netlist
-├── constraints/
-│   └── arty_s7_master.xdc         # Master XDC pinouts & timing constraints for Arty S7-25
-├── tcl/
-│   ├── build_bitstream.tcl        # Non-project batch synthesis & bitstream flow
-│   └── run_synth_check.tcl        # Resource verification script
-├── sim/
-│   ├── tb_synapse7_top.v          # End-to-end verification testbench
-│   └── run_simulation.py          # Automated simulation runner (xvlog / xelab / xsim)
-├── visualizer/
-│   ├── synapse7_dashboard.py      # HTTP & WebSocket telemetry server + Hardware bridge
-│   └── static/
-│       ├── index.html             # High-tech cyber-defense HUD interface
-│       ├── css/dashboard.css      # Dark cyberpunk dashboard styling
-│       └── js/app.js              # Real-time HTML5 Canvas spike raster & telemetry engine
-└── software/
-    ├── quantum_neuromorphic_sim.py        # GPU-Accelerated Q-SNN Hamiltonian simulator
-    ├── SYNAPSE7_Quantum_Neuromorphic_Colab.ipynb # Free Google Colab T4 GPU notebook
-    ├── train_snn_ids.py           # PyTorch SNN surrogate-gradient training pipeline
-    ├── pqc_reference_kyber.py     # Bit-exact Kyber-3329 arithmetic validation model
-    └── host_controller.py         # Serial CLI monitor & attack injector
-```
-
----
-
-## Quickstart Guide
-
-### 1. Launch the Real-Time Telemetry Visualizer
-Run the dashboard server with zero external dependencies (uses Python standard libraries + websockets):
+### 1. Launch the Live Telemetry HUD (Local PC)
 ```bash
 python visualizer/synapse7_dashboard.py
 ```
-Open `http://localhost:8080` in your browser. If your Arty S7 FPGA is plugged into USB, it streams live hardware telemetry; otherwise, it boots into the digital twin emulator automatically.
+Open **[http://localhost:8080](http://localhost:8080)** to view live hardware telemetry streaming from the Spartan-7 FPGA!
 
-### 2. Run RTL Verification Simulation
-Verify the entire hardware pipeline (spikes, NTT butterfly arithmetic, XADC tripwire) with AMD Vivado Simulator:
-```bash
+### 2. Free Cloud GPU Training (Google Colab)
+Open `software/SYNAPSE7_Quantum_Neuromorphic_Colab.ipynb` in [Google Colab](https://colab.research.google.com) to train and benchmark the Q-SNN on a free NVIDIA T4 GPU.
+
+### 3. Cycle-Accurate Vivado Hardware Simulation
+```powershell
 python sim/run_simulation.py
-```
-
-### 3. Train & Quantize Custom SNN Weights
-Train the Neuromorphic Intrusion Detection network in PyTorch and export 8-bit quantized weights (`snn_weights.mem`) for Spartan-7:
-```bash
-python software/train_snn_ids.py
-```
-
-### 4. Build the FPGA Bitstream
-Synthesize, place, route, and generate the bitstream for the Digilent Arty S7:
-```bash
-vivado -mode batch -source tcl/build_bitstream.tcl
-```
-The output bitstream will be located at `build/synapse7_arty_s7.bit`.
-
----
-
-## Physical Board I/O Reference (Arty S7)
-
-| Port / Peripheral | Pin | Function |
-| :--- | :---: | :--- |
-| **CLK100MHZ** | `R2` | 100 MHz System Oscillator |
-| **LED[0]** | `E18` | System Heartbeat Pulse |
-| **LED[1]** | `F13` | SNN Active Spiking Indicator |
-| **LED[2]** | `E13` | PQC NTT Accelerator Active |
-| **LED[3]** | `H15` | Hardware Tripwire Armed / Triggered |
-| **RGB0 / RGB1** | Header | Green = SAFE, Amber = CAUTION, Red = CRITICAL ATTACK |
-| **SW[0]** | `H14` | Generate PQC NTT Workload |
-| **SW[1]** | `H18` | Inject High-Density Neural Anomaly Burst |
-| **SW[2]** | `G18` | Inject Physical Voltage Brownout Fault |
-| **SW[3]** | `M5`  | Activate Quantum Neuromorphic Engine (Q-LIF Co-processor) |
-| **BTN[0]** | `G15` | Master Reset (Active High) |
-| **BTN[1]** | `K16` | Acknowledge & Clear Hardware Tripwire |
-| **UART_TXD** | `R12` | Telemetry Transmit to PC USB |
-| **UART_RXD** | `V12` | Command Receive from PC USB |
-
----
-
-## Git Repository Integration
-
-To push to your remote GitHub repository:
-
-```bash
-git init
-git add .
-git commit -m "feat: initial release of SYNAPSE-7 Neuromorphic-Quantum Hardware Security SoC"
-git branch -M main
-git remote add origin https://github.com/arunjyotisarmarsece24-jpg/SYNAPSE-7.git
-git push -u origin main
+python sim/run_riscv_simulation.py
 ```
 
 ---
 
-## Author & Lab Context
-- **Institution**: IIT (BHU) Advanced Research Lab
+## 📜 Academic Attribution & Lab Context
+
+- **Institution**: Department of Electronics Engineering, Indian Institute of Technology (BHU) Varanasi
+- **Laboratory**: IIT (BHU) Advanced Research Lab
+- **Lead Researcher**: Arunjyoti Sarma (Ph.D. Scholar)
 - **Domain**: Reconfigurable Computing, Post-Quantum Cryptography, Neuromorphic Hardware, Zero-Trust Systems
 - **License**: MIT
+
+```bibtex
+@article{sarma2026synapse7,
+  title={SYNAPSE-7: Quantum-Neuromorphic Computing and Non-Abelian Post-Quantum Security Engine on Spartan-7 FPGAs and Cadence ASICs},
+  author={Sarma, Arunjyoti},
+  journal={Department of Electronics Engineering, Indian Institute of Technology (BHU) Varanasi},
+  year={2026}
+}
+```
