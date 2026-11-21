@@ -86,6 +86,17 @@ module tb_synapse7_top;
         btn[1] = 0;
         #2000;
 
+        // Phase 6: Activate Quantum Neuromorphic Computation Engine (SW[3] = 1)
+        $display("[TB] ACTIVATING FULL QUANTUM NEUROMORPHIC COPROCESSOR (SW[3]=1)...");
+        sw[3] = 1;
+        sw[1] = 1; // Inject input traffic into quantum synaptic mesh
+        #250000;   // Advance multiple neuromorphic timesteps
+        $display("[TB] Quantum Co-processor Telemetry: Q-Spikes=%b, Born P(|1|)=%d, Coherence Avg=%d, Total Q-Spikes=%d",
+                 dut.quantum_spikes, dut.q_prob_one_sample, dut.q_coherence_avg, dut.total_qspikes_cnt);
+        sw[3] = 0;
+        sw[1] = 0;
+        #2000;
+
         $display("------------------------------------------------------------");
         $display("[TB] SYNAPSE-7 Testbench Completed with 100%% PASS Status.");
         $display("------------------------------------------------------------");

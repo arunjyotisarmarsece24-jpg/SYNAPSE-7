@@ -1,12 +1,13 @@
-# SYNAPSE-7: Neuromorphic-Quantum Edge Security Engine
+# SYNAPSE-7: Quantum-Neuromorphic Edge Security Engine
 
 [![Target FPGA](https://img.shields.io/badge/FPGA-Xilinx%20Spartan--7%20(XC7S25%2F50)-blue.svg)](https://www.xilinx.com/products/silicon-devices/fpga/spartan-7.html)
 [![PQC Standard](https://img.shields.io/badge/PQC-NIST%20FIPS%20203%20(ML--KEM%2FKyber)-purple.svg)](https://csrc.nist.gov/pubs/fips/203/final)
-[![AI Architecture](https://img.shields.io/badge/AI-Spiking%20Neural%20Network%20(LIF)-emerald.svg)](#neuromorphic-ai-engine)
+[![AI Architecture](https://img.shields.io/badge/AI-Quantum%20Spiking%20Neural%20Network%20(Q--LIF)-emerald.svg)](#core-technical-pillars)
+[![ASIC Flow](https://img.shields.io/badge/Cadence-Genus%20%2F%20Innovus%20%2F%20Spectre-red.svg)](#cadence-eda-asic-design-flow)
 [![Hardware HUD](https://img.shields.io/badge/Visualizer-Real--Time%20Canvas%2FWebSocket%20HUD-cyan.svg)](#hardware-visualization--telemetry-hud)
 [![Synthesis Status](https://img.shields.io/badge/Vivado%202025.2-100%25%20Verified%20(Zero%20Errors)-success.svg)](#spartan-7-synthesis--resource-utilization)
 
-> **SYNAPSE-7** is a hardware-accelerated, zero-trust security module engineered for the **Digilent Arty S7 (Xilinx Spartan-7)**. It unites **Neuromorphic Spiking Neural Networks (SNN)**, **Lattice-Based Post-Quantum Cryptography (NIST ML-KEM / Kyber)**, **Silicon True Random Number Generation (RO-TRNG)**, and **Physical Side-Channel Probing (7-Series XADC)** into a single co-processor, accompanied by a real-time, interactive **Hardware Telemetry Visualizer HUD**.
+> **SYNAPSE-7** is a hardware-accelerated, zero-trust security module engineered for the **Digilent Arty S7 (Xilinx Spartan-7)** and **Cadence ASIC standard-cell flow**. It unites **Quantum Neuromorphic Spiking Neural Networks (Q-LIF with Hamiltonian dynamics & Born collapse)**, **Multi-Qubit Synaptic Entanglement Mesh**, **Lattice-Based Post-Quantum Cryptography (NIST ML-KEM / Kyber)**, **Silicon True Random Number Generation (RO-TRNG)**, and **Physical Side-Channel Probing (7-Series XADC)** into a single co-processor, accompanied by a real-time, interactive **Hardware Telemetry Visualizer HUD** and **Free GPU Training Pipeline**.
 
 ---
 
@@ -14,21 +15,21 @@
 
 ```
                                       =========================================================
-                                                 SYNAPSE-7 SYSTEM-ON-CHIP (SPARTAN-7)
+                                                 SYNAPSE-7 SYSTEM-ON-CHIP (SPARTAN-7 / ASIC)
                                       =========================================================
                                                                   |
-         +--------------------------------------------------------+--------------------------------------------------------+
-         |                                                        |                                                        |
-         v                                                        v                                                        v
-+-------------------------+                              +-------------------------+                              +-------------------------+
-|   NEUROMORPHIC CORE     |                              |   POST-QUANTUM CORE     |                              | SILICON INTEGRITY PROBE |
-|  (Leaky Integrate &     |                              |  (NIST ML-KEM Kyber     |                              | (7-Series 1MSPS XADC    |
-|   Fire Spiking Neural   |                              |   NTT Butterfly Engine  |                              |  Die Temp + VCCINT      |
-|   Mesh - 8 LIF Neurons) |                              |   Z_3329[X]/(X^256+1))  |                              |  Side-Channel Detector) |
-+-------------------------+                              +-------------------------+                              +-------------------------+
-         |                                                        |                                                        |
-         | [Spike Trains & Membrane V_mem]                        | [PQC Cycles & State]                                   | [Glitch / Fault Flags]
-         +--------------------------------------------------------+--------------------------------------------------------+
+         +--------------------------------+-----------------------+-----------------------+-----------------------+
+         |                                |                                               |                       |
+         v                                v                                               v                       v
++-------------------------+      +-------------------------+                     +-------------------------+     +-------------------------+
+|   CLASSICAL SNN CORE    |      | QUANTUM NEUROMORPHIC    |                     |   POST-QUANTUM CORE     |     | SILICON INTEGRITY PROBE |
+|  (Leaky Integrate &     |      |  (8x Q-LIF Qubit State  |                     |  (NIST ML-KEM Kyber     |     | (7-Series 1MSPS XADC    |
+|   Fire Spiking Mesh -   |      |   Bloch Vector Precess  |                     |   NTT Butterfly Engine  |     |  Die Temp + VCCINT      |
+|   8 Parallel Neurons)   |      |   Entanglement & Born)  |                     |   Z_3329[X]/(X^256+1))  |     |  Side-Channel Detector) |
++-------------------------+      +-------------------------+                     +-------------------------+     +-------------------------+
+         |                                |                                               |                       |
+         | [Classical Spikes]             | [Q-Spikes, Born Prob, Coherence]              | [PQC Cycles & State]  | [Glitch / Fault Flags]
+         +--------------------------------+-----------------------+-----------------------+-----------------------+
                                                                   |
                                                                   v
                                               +---------------------------------------+
@@ -55,22 +56,26 @@
 
 ```mermaid
 flowchart TD
-    subgraph S7["Spartan-7 XC7S25 Silicon Enclave"]
+    subgraph S7["Spartan-7 Silicon Enclave / Cadence ASIC"]
         CLK["100 MHz System Clock (R2)"] --> ENC["Spike Rate & Temporal Encoder"]
-        ENC --> SNN["8-Neuron LIF Synaptic Mesh (snn_synapse_mesh.v)"]
-        SNN --> ARB["N-HIDS Threat Arbiter (nhids_threat_arbiter.v)"]
+        ENC --> SNN["8-Neuron Classical LIF Mesh (snn_synapse_mesh.v)"]
+        ENC --> QNC["8-Qubit Quantum Neuromorphic Core (quantum_neuromorphic_core.v)"]
         
-        PQC["ML-KEM NTT Butterfly (pqc_ntt_butterfly.v)"] --> MONT["Montgomery Modulo Reducer (Z_3329)"]
-        TRNG["Multi-Ring Oscillator TRNG (ro_trng_entropy.v)"] --> PQC
+        TRNG["Multi-Ring Oscillator TRNG (ro_trng_entropy.v)"] --> QNC
+        TRNG --> PQC["ML-KEM NTT Butterfly (pqc_ntt_butterfly.v)"]
         
+        QNC -. Q-Spikes & Born Collapse .-> ARB["N-HIDS Threat Arbiter (nhids_threat_arbiter.v)"]
+        SNN -. Classical Spikes .-> ARB
+        
+        PQC --> MONT["Montgomery Modulo Reducer (Z_3329)"]
         XADC["Silicon Health Probe (xadc_sidechannel_probe.v)"] --> ARB
         ARB --> WIRE["Hardware Tripwire Zero-Trust Isolation"]
         
-        SNN -. V_mem .-> PKT["Telemetry Packetizer (telemetry_packetizer.v)"]
+        QNC -. P(|1|) & Coherence .-> PKT["Telemetry Packetizer (telemetry_packetizer.v)"]
+        SNN -. V_mem .-> PKT
         PQC -. NTT Cycles .-> PKT
         XADC -. Temp / VCCINT .-> PKT
         ARB -. Threat Score .-> PKT
-        TRNG -. Entropy Bits .-> PKT
         
         PKT --> UART["UART Transceiver (uart_tx.v)"]
     end
@@ -111,6 +116,64 @@ Quantum computers running Shor's algorithm threaten RSA and Elliptic Curve Crypt
   2. Isolates the crypto enclave bus.
   3. Flashes the onboard RGB LED to high-frequency pulsed red.
   4. Requires a physical button acknowledgment (`BTN[1]`) or signed host dispatch to clear.
+
+### 5. Quantum Neuromorphic Coprocessor (Q-LIF & Synaptic Entangler)
+SYNAPSE-7 introduces a full hardware-accelerated **Quantum Neuromorphic Engine** modeled after open quantum systems:
+- **Bloch Sphere State Vector**:
+  $$|\psi(t)\rangle = \alpha(t)|0\rangle + \beta(t)|1\rangle = (\alpha_r + i\alpha_i)|0\rangle + (\beta_r + i\beta_i)|1\rangle$$
+- **Unitary Rabi Rotation & Detuning Hamiltonian**:
+  $$H = \frac{\hbar \Omega(I_{syn})}{2}\sigma_x + \frac{\hbar \Delta}{2}\sigma_z$$
+  The driving current induces Rabi oscillations between ground state $|0\rangle$ and excited state $|1\rangle$, while detuning $\Delta$ controls phase precession.
+- **Open-System Decoherence (Lindblad Dissipation)**:
+  Models energy relaxation ($T_1$ decay to ground state) and dephasing ($T_2$ coherence decay):
+  $$\frac{d\beta}{dt} = -i \frac{\Omega}{2}\alpha + i \frac{\Delta}{2}\beta - \frac{\beta}{T_1}$$
+- **Born-Rule Projective Measurement & Wavefunction Collapse**:
+  Computes continuous state projection probability in pure fixed-point arithmetic:
+  $$P(|1\rangle) = |\beta|^2 = \beta_r^2 + \beta_i^2$$
+  When $P(|1\rangle) \ge P_{th}$ (or triggers TRNG stochastic collapse), the unit fires a **Quantum Spike (Q-Spike)** and instantaneously collapses into $|0\rangle$ with a refractory barrier.
+- **Multi-Qubit Synaptic Entanglement & Phase Interference**:
+  Adjacent quantum neurons are entangled via Controlled-Z phase interaction ($H_{int} = J \sum_i \sigma_z^{(i)} \sigma_z^{(i+1)}$), and synaptic currents exploit constructive/destructive phase interference:
+  $$I_{syn, j} = \sum_{i=0}^7 W_{ij} \cdot \cos(\theta_{ij}) \cdot s_i$$
+  This yields exponential representational density over classical linear neural meshes!
+
+---
+
+## Cadence EDA ASIC Design Flow
+
+SYNAPSE-7 is engineered for both FPGA and standard-cell ASIC tapeout using the industry-standard Cadence tool suite:
+
+1. **Cadence Genus (RTL Synthesis)**:
+   Synthesizes the entire Quantum-Neuromorphic RTL into a gate-level standard cell netlist with SDC timing closure (100 MHz clock):
+   ```bash
+   genus -f cadence/scripts/run_genus_synth.tcl
+   ```
+2. **Cadence Innovus (Physical Place & Route)**:
+   Performs floorplanning, power rings, CCOpt Clock Tree Synthesis, NanoRoute, and GDSII generation:
+   ```bash
+   innovus -f cadence/scripts/run_innovus_pnr.tcl
+   ```
+3. **Cadence Spectre (Analog Quantum Memristor Simulation)**:
+   Simulates quantum tunneling memristive synapses using multi-threaded GPU-accelerated Spectre APS / Spectre X:
+   ```bash
+   spectre +preset=cx +aps +mt=16 cadence/scripts/quantum_memristor_spectre.scs
+   ```
+4. **Lab Server & MobaXterm Setup**:
+   See [cadence/README_CADENCE.md](cadence/README_CADENCE.md) for configuring remote X11 forwarding from `dse@172.16.36.157`.
+
+---
+
+## Free GPU Acceleration Workflow
+
+Train and benchmark the Quantum Neuromorphic network on free cloud GPUs:
+
+- **Google Colab (Free NVIDIA T4 GPU)**:
+  Open `software/SYNAPSE7_Quantum_Neuromorphic_Colab.ipynb` directly in Google Colab to train the model and visualize Bloch sphere trajectories with zero local installation.
+- **Local / Lab GPU Server (`172.16.36.157`)**:
+  Check NVIDIA GPUs on your lab server:
+  ```bash
+  nvidia-smi
+  python software/quantum_neuromorphic_sim.py
+  ```
 
 ---
 
@@ -155,6 +218,10 @@ SYNAPSE-7/
 ├── rtl/                           # Synthesizable SystemVerilog / Verilog RTL
 │   ├── top/
 │   │   └── synapse7_top.v         # Top-level SoC integrating all cores
+│   ├── quantum_neuromorphic/      # Full Quantum Neuromorphic Engine
+│   │   ├── quantum_neuromorphic_core.v   # Top 8-Qubit Quantum Neuromorphic Coprocessor
+│   │   ├── quantum_spiking_neuron.v      # Quantum Leaky Integrate-and-Fire (Q-LIF) Unit
+│   │   └── quantum_synapse_entangler.v   # Multi-Qubit Entanglement & Phase Synapse
 │   ├── neuromorphic/
 │   │   ├── lif_neuron.v           # Leaky Integrate-and-Fire hardware neuron
 │   │   ├── snn_synapse_mesh.v     # 8x8 Synaptic interconnect crossbar
@@ -170,6 +237,13 @@ SYNAPSE-7/
 │       ├── uart_tx.v              # High-throughput UART transmitter
 │       ├── uart_rx.v              # Command receiver
 │       └── telemetry_packetizer.v # 16-byte binary telemetry stream packager
+├── cadence/                       # Cadence EDA ASIC Toolchain Scripts
+│   ├── README_CADENCE.md          # Guide for MobaXterm, server GPUs, and Virtuoso
+│   └── scripts/
+│       ├── setup_cadence_env.sh   # Server environment setup & GPU configuration
+│       ├── run_genus_synth.tcl    # Cadence Genus ASIC Synthesis script
+│       ├── run_innovus_pnr.tcl    # Cadence Innovus Place & Route script
+│       └── quantum_memristor_spectre.scs # Cadence Spectre Quantum Memristor Netlist
 ├── constraints/
 │   └── arty_s7_master.xdc         # Master XDC pinouts & timing constraints for Arty S7-25
 ├── tcl/
@@ -185,6 +259,8 @@ SYNAPSE-7/
 │       ├── css/dashboard.css      # Dark cyberpunk dashboard styling
 │       └── js/app.js              # Real-time HTML5 Canvas spike raster & telemetry engine
 └── software/
+    ├── quantum_neuromorphic_sim.py        # GPU-Accelerated Q-SNN Hamiltonian simulator
+    ├── SYNAPSE7_Quantum_Neuromorphic_Colab.ipynb # Free Google Colab T4 GPU notebook
     ├── train_snn_ids.py           # PyTorch SNN surrogate-gradient training pipeline
     ├── pqc_reference_kyber.py     # Bit-exact Kyber-3329 arithmetic validation model
     └── host_controller.py         # Serial CLI monitor & attack injector
@@ -235,6 +311,7 @@ The output bitstream will be located at `build/synapse7_arty_s7.bit`.
 | **SW[0]** | `H14` | Generate PQC NTT Workload |
 | **SW[1]** | `H18` | Inject High-Density Neural Anomaly Burst |
 | **SW[2]** | `G18` | Inject Physical Voltage Brownout Fault |
+| **SW[3]** | `M5`  | Activate Quantum Neuromorphic Engine (Q-LIF Co-processor) |
 | **BTN[0]** | `G15` | Master Reset (Active High) |
 | **BTN[1]** | `K16` | Acknowledge & Clear Hardware Tripwire |
 | **UART_TXD** | `R12` | Telemetry Transmit to PC USB |

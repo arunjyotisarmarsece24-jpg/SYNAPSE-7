@@ -15,15 +15,16 @@ set device [lindex [get_hw_devices] 0]
 current_hw_device $device
 refresh_hw_device -update_hw_probes false $device
 
-set bitfile "./build/synapse7_arty_s7.bit"
+set projDir [file normalize [file dirname [info script]]/..]
+set bitfile "$projDir/build/synapse7_arty_s7.bit"
 if {![file exists $bitfile]} {
-    set bitfile "./synth_check_out/synapse7_top.bit"
+    set bitfile "$projDir/synth_check_out/synapse7_top.bit"
 }
 
-puts "=== [SYNAPSE-7] Programming Spartan-7 Device: $device with $bitfile ==="
+puts "=== SYNAPSE-7: Programming Spartan-7 Device: $device with $bitfile ==="
 set_property PROGRAM.FILE $bitfile $device
 program_hw_devices $device
 refresh_hw_device [lindex [get_hw_devices] 0]
-puts "=== [SYNAPSE-7] FPGA Programmed Successfully! Running SYNAPSE-7 Core. ==="
+puts "=== SYNAPSE-7: FPGA Programmed Successfully! Running SYNAPSE-7 Core. ==="
 close_hw_manager
 exit

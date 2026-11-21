@@ -59,6 +59,18 @@ function updateDashboard(data) {
         tripBadge.className = "chip-val trip-safe";
     }
 
+    // Engine mode badge
+    const engBadge = document.getElementById("engine-badge");
+    if (engBadge) {
+        if (data.quantum_mode) {
+            engBadge.innerText = "QUANTUM Q-LIF";
+            engBadge.style.color = "#00ffcc";
+        } else {
+            engBadge.innerText = "CLASSICAL SNN";
+            engBadge.style.color = "var(--accent-cyan)";
+        }
+    }
+
     // Raster buffer update
     rasterHistory.push(data.neuron_spikes);
     if (rasterHistory.length > RASTER_HISTORY_LEN) {
@@ -72,7 +84,11 @@ function updateDashboard(data) {
         vmemHistory.shift();
     }
     renderVmem();
-    document.getElementById("vmem-val").innerText = `${data.v_mem} mV`;
+    if (data.quantum_mode) {
+        document.getElementById("vmem-val").innerText = `P(|1|) = ${(data.v_mem / 16384.0).toFixed(3)} (Q-State)`;
+    } else {
+        document.getElementById("vmem-val").innerText = `${data.v_mem} mV`;
+    }
 
     // PQC metrics
     document.getElementById("pqc-cycles-val").innerText = data.pqc_cycles.toLocaleString();

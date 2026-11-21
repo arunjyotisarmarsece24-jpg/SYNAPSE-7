@@ -2,6 +2,7 @@
 set outputDir ./synth_check_out
 file mkdir $outputDir
 
+read_verilog -sv [glob ./rtl/quantum_neuromorphic/*.v]
 read_verilog -sv [glob ./rtl/neuromorphic/*.v]
 read_verilog -sv [glob ./rtl/quantum_pqc/*.v]
 read_verilog -sv [glob ./rtl/security/*.v]

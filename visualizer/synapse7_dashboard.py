@@ -41,6 +41,9 @@ latest_telemetry = {
     "v_mem": 0,
     "die_temp": 42.5,
     "vccint": 1.01,
+    "quantum_mode": False,
+    "born_prob": 0.0,
+    "coherence": 0.95,
     "fps": 60,
     "switches": [0, 0, 0, 0],
     "buttons": [0, 0, 0, 0],
@@ -99,6 +102,8 @@ def parse_telemetry_frame(frame_bytes):
     threat_level = level_map.get(threat_code, "UNKNOWN")
 
     spikes_list = [(spikes_raw >> i) & 1 for i in range(8)]
+    quantum_mode = bool((status_flags >> 7) & 1)
+    born_prob    = round(max(0, v_mem_raw) / 16384.0, 4) if quantum_mode else 0.0
 
     return {
         "source": "FPGA_HARDWARE",
@@ -111,9 +116,11 @@ def parse_telemetry_frame(frame_bytes):
         "trng_entropy": round(0.95 + 0.05 * (trng_byte % 7) / 7.0, 3),
         "pqc_cycles": pqc_cycles,
         "v_mem": v_mem_raw,
+        "quantum_mode": quantum_mode,
+        "born_prob": born_prob,
         "die_temp": round(die_temp_c, 2),
         "vccint": round(vccint_v, 3),
-        "status_msg": "Live Telemetry from Spartan-7"
+        "status_msg": "SYNAPSE-7 Quantum-Neuromorphic FPGA Enclave Active"
     }
 
 # -----------------------------------------------------------------------------
@@ -163,8 +170,24 @@ def hardware_telemetry_loop():
             seq = (seq + 1) & 0xFF
             pqc_sim_cycles += random.randint(12, 35)
             
-            # Neural dynamics simulation (LIF)
-            if simulated_threat_mode == "PACKET_BURST":
+            q_active = False
+            born_prob = 0.0
+            coherence = 0.95
+
+            # Neural dynamics simulation (LIF & Quantum Q-LIF)
+            if simulated_threat_mode == "QUANTUM_MODE":
+                q_active = True
+                theta = (seq * 0.18) % math.pi
+                born_prob = round((math.sin(theta) ** 2), 3)
+                coherence = round(abs(math.cos(theta)), 3)
+                q_fire = (born_prob >= 0.50)
+                spikes = [1 if (q_fire and random.random() < 0.85) else (1 if random.random() < 0.08 else 0) for _ in range(8)]
+                v_mem_sim = int(born_prob * 16384)
+                threat_score = max(12, min(80, int(born_prob * 75)))
+                tripwire = False
+                temp = 42.1 + 0.4 * math.sin(seq * 0.05)
+                vcc = 1.003
+            elif simulated_threat_mode == "PACKET_BURST":
                 spikes = [random.choice([0, 1, 1, 1]) for _ in range(8)]
                 threat_score = min(100, latest_telemetry["threat_score"] + random.randint(8, 15))
                 tripwire = threat_score >= 60
@@ -212,6 +235,9 @@ def hardware_telemetry_loop():
                 "trng_entropy": round(0.96 + random.uniform(0.01, 0.039), 3),
                 "pqc_cycles": pqc_sim_cycles,
                 "v_mem": v_mem_sim,
+                "quantum_mode": q_active,
+                "born_prob": born_prob,
+                "coherence": coherence,
                 "die_temp": round(temp, 2),
                 "vccint": round(vcc, 3),
                 "status_msg": "SYNAPSE-7 Digital Twin Emulation Running"

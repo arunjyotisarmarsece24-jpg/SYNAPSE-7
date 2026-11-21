@@ -33,6 +33,10 @@
                 <span class="chip-label">TRIPWIRE:</span>
                 <span class="chip-val trip-safe" id="tripwire-badge">SECURE</span>
             </div>
+            <div class="metric-chip">
+                <span class="chip-label">ENGINE:</span>
+                <span class="chip-val" id="engine-badge" style="color: var(--accent-cyan);">CLASSICAL SNN</span>
+            </div>
         </div>
     </header>
 
@@ -186,6 +190,7 @@
                     <span class="control-legend">TACTICAL ATTACK INJECTION & RESPONSE:</span>
                     <div class="button-group">
                         <button class="btn btn-normal" onclick="setMode('NORMAL')">NORMAL BASELINE</button>
+                        <button class="btn btn-quantum" onclick="setMode('QUANTUM_MODE')" style="border-color: #00ffcc; color: #00ffcc;">⚛️ QUANTUM Q-LIF MODE</button>
                         <button class="btn btn-attack" onclick="setMode('PACKET_BURST')">INJECT SNN ANOMALY BURST</button>
                         <button class="btn btn-glitch" onclick="setMode('VOLTAGE_GLITCH')">INJECT VCCINT BROWNOUT</button>
                         <button class="btn btn-laser"  onclick="setMode('THERMAL_FAULT')">INJECT LASER FAULT</button>

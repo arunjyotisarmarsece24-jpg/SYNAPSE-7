@@ -1,0 +1,75 @@
+// ==============================================================================
+// Netlist: quantum_memristor_spectre.scs
+// Project: SYNAPSE-7 (Quantum-Neuromorphic Hardware Engine)
+// Simulator: Cadence Spectre / Spectre APS / Spectre X (GPU Accelerated)
+// Description: Compact Verilog-A / Spectre Subcircuit Model for Quantum Memristive
+//              Synapses with Quantum Tunneling Conductance G(w) and Spiking Dynamics.
+// ==============================================================================
+
+simulator lang=spectre
+global 0
+
+// ------------------------------------------------------------------------------
+// Quantum Memristor Behavioral Subcircuit
+// State variable: w(t) in [0, 1] representing quantum tunneling barrier width
+// Conductance:    G(w) = G_on * (1 - w) + G_off * w * exp(-alpha * w)
+// ------------------------------------------------------------------------------
+subckt quantum_memristor (p n)
+    parameters 
+    + r_on   = 100.0        // Low resistance state (Quantum Point Contact)
+    + r_off  = 16.0e3       // High resistance state (Tunnel barrier intact)
+    + w_init = 0.50         // Initial normalized state variable
+    + eta    = 1.0e-3       // State mobility factor
+    + alpha  = 2.5          // Quantum tunneling non-linearity factor
+    + v_th_p = 0.65         // Positive switching threshold (V)
+    + v_th_n = -0.65        // Negative switching threshold (V)
+
+    // Internal state node representing w(t)
+    nodes (w_state)
+
+    // State evolution: dw/dt = f(v) * window(w)
+    // Modeled using a state capacitor and non-linear voltage-controlled current source
+    Cw (w_state 0) capacitor c=1.0p ic=w_init
+
+    // Non-linear state drift with quantum tunneling window function
+    // Joglekar window function: f_win(w) = 1 - (2*w - 1)^4
+    // Positive pulse pushes w towards 0 (R_on), negative pulse pushes towards 1 (R_off)
+    Gw (w_state 0) bsource i = (
+        (V(p,n) > v_th_p) ? -eta * (V(p,n) - v_th_p) * (1.0 - pow(2.0*V(w_state) - 1.0, 4)) :
+        (V(p,n) < v_th_n) ? -eta * (V(p,n) - v_th_n) * (1.0 - pow(2.0*V(w_state) - 1.0, 4)) : 0.0
+    )
+
+    // Memristive Conductance: I(p, n) = V(p, n) * G(w)
+    // Quantum tunneling correction: exp(-alpha * w)
+    Gmem (p n) bsource i = V(p,n) / (
+        (1.0 - V(w_state)) * r_on + V(w_state) * r_off * exp(alpha * V(w_state))
+    )
+ends quantum_memristor
+
+// ------------------------------------------------------------------------------
+// Test Circuit: Quantum Neuromorphic Spiking Synaptic Pulse Train
+// ------------------------------------------------------------------------------
+// Pulse generator emulating LIF action potential spikes (1.2V, 20ns width, 100ns period)
+Vspike (vin 0) vsource type=pulse val0=0.0 val1=1.2 period=100n width=20n rise=1n fall=1n
+
+// Synaptic Load Resistor
+Rload (vout 0) resistor r=1.0k
+
+// Quantum Memristive Synapse Instance
+Xsyn1 (vin vout) quantum_memristor w_init=0.85
+
+// ------------------------------------------------------------------------------
+// Transient Analysis & GPU/Multithread Options
+// ------------------------------------------------------------------------------
+simulatorOptions options 
++ reltol=1e-4 
++ vabstol=1e-6 
++ iabstol=1e-12 
++ temp=27.0 
++ tnom=27.0
+
+// Run 2.0 microsecond transient simulation with high-resolution adaptive timesteps
+tran_sim tran stop=2.0u maxstep=0.5n
+
+// Save waveform outputs
+save vin vout Xsyn1:w_state

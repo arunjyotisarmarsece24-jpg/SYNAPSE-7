@@ -117,6 +117,62 @@ module synapse7_top (
         .all_v_mem_flat(all_v_mem_flat)
     );
 
+
+    // ------------------------------------------------------------------------
+    // Physical Ring Oscillator TRNG & Entropy Source
+    // ------------------------------------------------------------------------
+    wire [7:0] trng_random_byte;
+    wire       trng_valid;
+    wire [3:0] ro_taps;
+
+    ro_trng_entropy u_ro_trng (
+        .clk(CLK100MHZ),
+        .rst_n(sys_rst_n),
+        .sample_enable(timestep_tick),
+        .random_byte_out(trng_random_byte),
+        .random_valid(trng_valid),
+        .ro_raw_taps(ro_taps)
+    );
+
+    // ------------------------------------------------------------------------
+    // Quantum Neuromorphic Coprocessor Engine (8x Q-LIF & Synaptic Entangler)
+    // ------------------------------------------------------------------------
+    wire [7:0]         quantum_spikes;
+    wire [15:0]        q_prob_one_sample;
+    wire signed [15:0] q_bloch_z_sample;
+    wire signed [15:0] q_coherence_avg;
+    wire [31:0]        total_qspikes_cnt;
+    wire [127:0]       all_q_prob_flat;
+
+    // SW[3] activates the Quantum Neuromorphic Processing Engine
+    wire quantum_mode_en = sw[3];
+
+    quantum_neuromorphic_core #(
+        .NUM_NEURONS(8),
+        .DATA_WIDTH(16),
+        .WEIGHT_WIDTH(8)
+    ) u_quantum_core (
+        .clk(CLK100MHZ),
+        .rst_n(sys_rst_n),
+        .enable(timestep_tick),
+        .quantum_en(quantum_mode_en),
+        .input_spikes(encoded_input_spikes),
+        .entanglement_en(1'b1),             // Multi-qubit phase entanglement enabled
+        .stochastic_mode(1'b0),             // Born collapse mode
+        .entropy_byte(trng_random_byte),
+        .p_th_tune(16'd8192),               // 50% Born probability collapse threshold
+        .quantum_spikes(quantum_spikes),
+        .prob_one_sample(q_prob_one_sample),
+        .bloch_z_sample(q_bloch_z_sample),
+        .coherence_avg(q_coherence_avg),
+        .total_qspikes_cnt(total_qspikes_cnt),
+        .all_prob_one_flat(all_q_prob_flat)
+    );
+
+    // Dynamic Arbitration: Fuse Classical and Quantum Spikes for Arbiter and HUD
+    wire [7:0]  active_neuron_spikes   = quantum_mode_en ? (neuron_spikes | quantum_spikes) : neuron_spikes;
+    wire [15:0] active_telemetry_trace = quantum_mode_en ? q_prob_one_sample : all_v_mem_flat[15:0];
+
     // ------------------------------------------------------------------------
     // NIST ML-KEM Post-Quantum NTT Butterfly Accelerator
     // ------------------------------------------------------------------------
@@ -159,21 +215,6 @@ module synapse7_top (
         .butterfly_cycles_cnt(pqc_cycles)
     );
 
-    // ------------------------------------------------------------------------
-    // Physical Ring Oscillator TRNG & Entropy Source
-    // ------------------------------------------------------------------------
-    wire [7:0] trng_random_byte;
-    wire       trng_valid;
-    wire [3:0] ro_taps;
-
-    ro_trng_entropy u_ro_trng (
-        .clk(CLK100MHZ),
-        .rst_n(sys_rst_n),
-        .sample_enable(timestep_tick),
-        .random_byte_out(trng_random_byte),
-        .random_valid(trng_valid),
-        .ro_raw_taps(ro_taps)
-    );
 
     // ------------------------------------------------------------------------
     // XADC Side-Channel & Physical Glitch Probe
@@ -210,7 +251,7 @@ module synapse7_top (
         .clk(CLK100MHZ),
         .rst_n(sys_rst_n),
         .timestep_tick(timestep_tick),
-        .neuron_spikes(neuron_spikes),
+        .neuron_spikes(active_neuron_spikes),
         .xadc_voltage_glitch(voltage_glitch),
         .xadc_thermal_warning(thermal_glitch),
         .manual_trip_clear(btn[1]), // BTN[1] clears locked tripwire
@@ -233,13 +274,13 @@ module synapse7_top (
     ) u_packetizer (
         .clk(CLK100MHZ),
         .rst_n(sys_rst_n),
-        .neuron_spikes(neuron_spikes),
+        .neuron_spikes(active_neuron_spikes),
         .threat_score(threat_score),
         .threat_level(threat_level),
         .hardware_tripwire(hardware_tripwire),
         .trng_byte(trng_random_byte),
         .pqc_cycles(pqc_cycles),
-        .v_mem_sample(all_v_mem_flat[15:0]), // Neuron 0 trace
+        .v_mem_sample(active_telemetry_trace), // Neuron 0 trace / Q-Neuron Born prob
         .die_temp_raw(die_temp_raw),
         .vccint_raw(vccint_raw),
         .system_status_flags({sw, btn}),
@@ -286,7 +327,7 @@ module synapse7_top (
     always @(posedge CLK100MHZ) heartbeat_cnt <= heartbeat_cnt + 1'b1;
 
     assign led[0] = heartbeat_cnt[24];
-    assign led[1] = |neuron_spikes;
+    assign led[1] = |active_neuron_spikes;
     assign led[2] = pqc_start | pqc_valid;
     assign led[3] = hardware_tripwire;
 

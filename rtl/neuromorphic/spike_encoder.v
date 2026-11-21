@@ -44,8 +44,6 @@ module spike_encoder #(
                     encoded_spikes[c] <= 1'b0;
                 end
             end
-        end else begin
-            encoded_spikes <= {CHANNELS{1'b0}};
         end
     end
 

@@ -3,18 +3,21 @@
 # Target Board: Digilent Arty S7 (Spartan-7 XC7S25-CSGA324-1)
 # ==============================================================================
 
-set outputDir ./build
+set projDir [file normalize [file dirname [info script]]/..]
+set outputDir "$projDir/build"
 file mkdir $outputDir
 
 # 1. Read Verilog Sources
-read_verilog -sv [glob ./rtl/neuromorphic/*.v]
-read_verilog -sv [glob ./rtl/quantum_pqc/*.v]
-read_verilog -sv [glob ./rtl/security/*.v]
-read_verilog -sv [glob ./rtl/comms/*.v]
-read_verilog -sv [glob ./rtl/top/*.v]
+read_verilog -sv [glob $projDir/rtl/riscv/*.v]
+read_verilog -sv [glob $projDir/rtl/quantum_neuromorphic/*.v]
+read_verilog -sv [glob $projDir/rtl/neuromorphic/*.v]
+read_verilog -sv [glob $projDir/rtl/quantum_pqc/*.v]
+read_verilog -sv [glob $projDir/rtl/security/*.v]
+read_verilog -sv [glob $projDir/rtl/comms/*.v]
+read_verilog -sv [glob $projDir/rtl/top/*.v]
 
 # 2. Read Timing and Physical Constraints
-read_xdc ./constraints/arty_s7_master.xdc
+read_xdc $projDir/constraints/arty_s7_master.xdc
 
 # 3. Run Synthesis
 puts "=== {SYNAPSE-7} Running Synthesis ==="
