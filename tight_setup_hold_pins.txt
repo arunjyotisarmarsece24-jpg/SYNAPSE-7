@@ -1,8 +1,78 @@
-+====================+===================+========================================================+
-| Launch Setup Clock | Launch Hold Clock | Pin                                                    |
-+====================+===================+========================================================+
-| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[0].u_neuron/spike_out_reg/D |
-| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[5].u_neuron/spike_out_reg/D |
-| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[2].u_neuron/spike_out_reg/D |
-| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[6].u_neuron/spike_out_reg/D |
-+--------------------+-------------------+--------------------------------------------------------+
++====================+===================+===================================================================+
+| Launch Setup Clock | Launch Hold Clock | Pin                                                               |
++====================+===================+===================================================================+
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/beta_i_reg[15]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/beta_i_reg[14]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[13]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/beta_i_reg[13]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[14]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[12]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[15]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/beta_i_reg[5]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/beta_i_reg[9]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[9]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/beta_i_reg[6]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/beta_i_reg[4]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[10]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[10]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[11]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[7]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/alpha_i_reg[11]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[11]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/beta_i_reg[7]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[8]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/beta_i_reg[8]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[6]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[7]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/beta_i_reg[7]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[9]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[8]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/alpha_i_reg[5]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[3]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/beta_i_reg[6]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[15]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[4]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[6]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[5]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/alpha_i_reg[14]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/alpha_i_reg[9]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/alpha_i_reg[7]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/alpha_i_reg[11]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/alpha_i_reg[3]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/alpha_i_reg[10]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/alpha_i_reg[9]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/beta_i_reg[8]/D   |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[13]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[2]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[9]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[2]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/alpha_i_reg[8]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[14]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[6].u_qneuron/alpha_i_reg[1]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[6]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[11]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/alpha_i_reg[5]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[5]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[8]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[7]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[3]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/alpha_i_reg[2]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[2].u_qneuron/alpha_i_reg[10]/D |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/alpha_i_reg[4]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[3].u_qneuron/alpha_i_reg[2]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[1].u_qneuron/alpha_i_reg[0]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_quantum_core/gen_quantum_neurons[0].u_qneuron/alpha_i_reg[0]/D  |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[7].u_neuron/spike_out_reg/D            |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[0].u_neuron/spike_out_reg/D            |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[1].u_neuron/spike_out_reg/D            |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[4].u_neuron/spike_out_reg/D            |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[3].u_neuron/spike_out_reg/D            |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[2].u_neuron/spike_out_reg/D            |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[5].u_neuron/spike_out_reg/D            |
+| sys_clk_pin        | sys_clk_pin       | u_snn_mesh/gen_lif_neurons[6].u_neuron/spike_out_reg/D            |
+| sys_clk_pin        | sys_clk_pin       | u_packetizer/packet_buf_reg[15][3]/D                              |
+| sys_clk_pin        | sys_clk_pin       | u_packetizer/packet_buf_reg[15][1]/D                              |
+| sys_clk_pin        | sys_clk_pin       | u_packetizer/packet_buf_reg[15][2]/D                              |
+| sys_clk_pin        | sys_clk_pin       | u_packetizer/packet_buf_reg[15][6]/D                              |
+| sys_clk_pin        | sys_clk_pin       | u_packetizer/packet_buf_reg[15][5]/D                              |
++--------------------+-------------------+-------------------------------------------------------------------+

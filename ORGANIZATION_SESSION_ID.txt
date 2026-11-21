@@ -1,0 +1,17 @@
+================================================================================
+SYNAPSE-7 RESEARCH PROJECT // SESSION & ORGANIZATION METADATA
+================================================================================
+ORGANIZATION:      IIT (BHU) RESEARCH LAB
+INSTITUTION:       Indian Institute of Technology (BHU) Varanasi
+DEPARTMENT:        Department of Electronics Engineering
+LEAD RESEARCHER:   Arunjyoti Sarma (Ph.D. Scholar)
+EMAIL:             arunjyotisarma.rs.ece24@itbhu.ac.in
+DATE:              Saturday, November 21, 2026
+CONVERSATION ID:   6f8840a5-ec75-4477-830f-4a4c3867dfc7
+PROJECT PATH:      C:\Users\IITBHU RESEARCH LAB\OneDrive\Desktop\Arunjyoti_Sarma\My_Coding_files\Synapse-7_Project
+GITHUB URL:        https://github.com/arunjyotisarmarsece24-jpg/SYNAPSE-7
+REMOTE SERVER:     dse@172.16.36.157 (dtiresearch)
+HARDWARE TARGET:   Digilent Arty S7 (Spartan-7 XC7S25)
+SERIAL PORT:       COM5 (115200 Baud)
+HUD URL:           http://localhost:8080
+================================================================================
