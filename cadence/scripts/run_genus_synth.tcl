@@ -31,7 +31,6 @@ puts "\[INFO\] Project Root: $PROJ_ROOT"
 puts "\[INFO\] RTL Directory: $RTL_DIR"
 
 # 2. Target Technology Library (Generic, TSMC, SCL 180nm, FreePDK45, or Sky130)
-# If proprietary PDK is not set, Genus uses generic technology mapping
 set TECH_LIB [getenv "CADENCE_TECH_LIB" ""]
 if {$TECH_LIB ne ""} {
     set_db target_library $TECH_LIB
@@ -112,4 +111,13 @@ puts "  Netlist:     $OUTPUTS_DIR/synapse7_synth_netlist.v"
 puts "  Constraints: $OUTPUTS_DIR/synapse7_synth_constraints.sdc"
 puts "  Reports:     $REPORTS_DIR/synapse7_area_report.rpt"
 puts "======================================================================"
-exit
+
+# Check if GUI is active; only exit in batch mode
+catch {
+    if {[get_db is_gui_active] eq "true"} {
+        puts "\[INFO\] Synthesis completed in GUI mode. Explore the schematic and timing in Genus!"
+        gui_show
+    } else {
+        exit
+    }
+}
