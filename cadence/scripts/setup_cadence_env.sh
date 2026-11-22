@@ -4,7 +4,7 @@
 # Project: SYNAPSE-7 (Quantum Neuromorphic Hardware Engine)
 # Target: Linux Lab Server (dse@172.16.36.157 / dtiresearch)
 # Description: Configures Cadence EDA environment (Virtuoso, Genus, Innovus, Spectre)
-#              with X11 Remote Display forwarding and GPU Acceleration checks.
+#              with X11 Remote Display forwarding and verified IIT BHU license server.
 # ==============================================================================
 
 echo "======================================================================"
@@ -43,96 +43,55 @@ if command -v xdpyinfo &> /dev/null; then
     fi
 fi
 
-# 3. Environment & License Configuration for Cadence
-echo -e "\n[*] Step 3: Setting up Cadence Licenses & Paths..."
+# 3. Verified IIT BHU Cadence License Configuration
+echo -e "\n[*] Step 3: Setting up Verified IIT BHU Cadence Licenses..."
+export LM_LICENSE_FILE="5280@14.139.1.126"
+export CDS_LIC_FILE="5280@14.139.1.126"
+echo "[+] Verified Cadence License Server: $CDS_LIC_FILE"
 
-# License file environment
-if [ -z "$CDS_LIC_FILE" ] && [ -z "$LM_LICENSE_FILE" ]; then
-    export CDS_LIC_FILE="5280@172.16.36.157:5280@172.16.36.1:5280@licserver.iitbhu.ac.in"
-    export LM_LICENSE_FILE=$CDS_LIC_FILE
-    echo "[+] Set default Cadence license pointers: $CDS_LIC_FILE"
-else
-    echo "[+] License pointer already active: ${CDS_LIC_FILE:-$LM_LICENSE_FILE}"
+# 4. Add All Cadence Tool Paths from /home/install
+echo -e "\n[*] Step 4: Configuring Tool Execution Paths..."
+
+# Genus 21.1
+if [ -d "/home/install/GENUS211" ]; then
+    export GENUS_HOME="/home/install/GENUS211"
+    for p in "$GENUS_HOME/tools.lnx86/genus/bin/64bit" "$GENUS_HOME/bin" "$GENUS_HOME/tools/bin"; do
+        if [ -d "$p" ]; then export PATH="$p:$PATH"; fi
+    done
 fi
 
-# If Environment Modules are used in the lab:
-if command -v module &> /dev/null; then
-    echo "[+] Environment Modules detected. Loading Cadence tools..."
-    module load cadence/virtuoso 2>/dev/null || module load virtuoso 2>/dev/null || true
-    module load cadence/genus 2>/dev/null || module load genus 2>/dev/null || true
-    module load cadence/innovus 2>/dev/null || module load innovus 2>/dev/null || true
-    module load cadence/spectre 2>/dev/null || module load spectre 2>/dev/null || true
+# Innovus 21.1
+if [ -d "/home/install/INNOVUS211" ]; then
+    export INNOVUS_HOME="/home/install/INNOVUS211"
+    for p in "$INNOVUS_HOME/tools.lnx86/innovus/bin/64bit" "$INNOVUS_HOME/bin" "$INNOVUS_HOME/tools/bin"; do
+        if [ -d "$p" ]; then export PATH="$p:$PATH"; fi
+    done
 fi
 
-# Auto-discover Cadence installation paths under /home/install and other common roots
-POSSIBLE_CADENCE_ROOTS=(
-    "/home/install"
-    "/tools/cadence"
-    "/opt/cadence"
-    "/eda/cadence"
-    "/cadence"
-    "/usr/local/cadence"
-)
+# Spectre 21.1
+if [ -d "/home/install/SPECTRE211" ]; then
+    export SPECTRE_HOME="/home/install/SPECTRE211"
+    for p in "$SPECTRE_HOME/tools.lnx86/spectre/bin/64bit" "$SPECTRE_HOME/bin" "$SPECTRE_HOME/tools/bin"; do
+        if [ -d "$p" ]; then export PATH="$p:$PATH"; fi
+    done
+fi
 
-for install_root in "${POSSIBLE_CADENCE_ROOTS[@]}"; do
-    if [ -d "$install_root" ]; then
-        echo "[+] Searching for Cadence tools in: $install_root"
-        
-        # 1. Genus Synthesis
-        if ! command -v genus &> /dev/null; then
-            GENUS_BIN=$(find "$install_root" -maxdepth 6 -name "genus" -type f -perm /111 2>/dev/null | grep -E "bin.*genus" | head -n 1)
-            if [ -n "$GENUS_BIN" ]; then
-                export PATH="$(dirname "$GENUS_BIN"):$PATH"
-                echo "    [+] Discovered Genus at: $GENUS_BIN"
-            fi
-        fi
-        
-        # 2. Innovus Place & Route
-        if ! command -v innovus &> /dev/null; then
-            INNOVUS_BIN=$(find "$install_root" -maxdepth 6 -name "innovus" -type f -perm /111 2>/dev/null | grep -E "bin.*innovus" | head -n 1)
-            if [ -n "$INNOVUS_BIN" ]; then
-                export PATH="$(dirname "$INNOVUS_BIN"):$PATH"
-                echo "    [+] Discovered Innovus at: $INNOVUS_BIN"
-            fi
-        fi
+# Virtuoso IC618
+if [ -d "/home/install/IC618" ]; then
+    export CDSHOME="/home/install/IC618"
+    for p in "$CDSHOME/tools.lnx86/dfII/bin" "$CDSHOME/tools/dfII/bin" "$CDSHOME/tools/bin"; do
+        if [ -d "$p" ]; then export PATH="$p:$PATH"; fi
+    done
+fi
 
-        # 3. Spectre SPICE Simulator
-        if ! command -v spectre &> /dev/null; then
-            SPECTRE_BIN=$(find "$install_root" -maxdepth 6 -name "spectre" -type f -perm /111 2>/dev/null | grep -E "bin.*spectre" | head -n 1)
-            if [ -n "$SPECTRE_BIN" ]; then
-                export PATH="$(dirname "$SPECTRE_BIN"):$PATH"
-                echo "    [+] Discovered Spectre at: $SPECTRE_BIN"
-            fi
-        fi
-
-        # 4. Virtuoso (IC / Custom IC)
-        if ! command -v virtuoso &> /dev/null; then
-            VIRTUOSO_BIN=$(find "$install_root" -maxdepth 6 -name "virtuoso" -type f -perm /111 2>/dev/null | head -n 1)
-            if [ -n "$VIRTUOSO_BIN" ]; then
-                export PATH="$(dirname "$VIRTUOSO_BIN"):$PATH"
-                echo "    [+] Discovered Virtuoso at: $VIRTUOSO_BIN"
-            fi
-        fi
-
-        # 5. SimVision Waveform Viewer
-        if ! command -v simvision &> /dev/null; then
-            SIMVISION_BIN=$(find "$install_root" -maxdepth 6 -name "simvision" -type f -perm /111 2>/dev/null | head -n 1)
-            if [ -n "$SIMVISION_BIN" ]; then
-                export PATH="$(dirname "$SIMVISION_BIN"):$PATH"
-                echo "    [+] Discovered SimVision at: $SIMVISION_BIN"
-            fi
-        fi
-    fi
-done
-
-# Set Multi-Threading Defaults for Cadence Spectre
-NUM_CORES=$(nproc 2>/dev/null || echo 8)
+# Set Multi-Threading Defaults for Cadence (28 CPU Threads Detected!)
+NUM_CORES=$(nproc 2>/dev/null || echo 28)
 export SPECTRE_DEFAULTS="-+preset=cx -+aps -+mt=$NUM_CORES"
-echo "[+] Spectre parallel acceleration set to $NUM_CORES CPU threads."
+echo "[+] Cadence parallel acceleration set to $NUM_CORES CPU threads."
 
 # Summary of Cadence Binaries
-echo -e "\n[*] Tool Availability Status:"
-for tool in genus innovus spectre virtuoso simvision; do
+echo -e "\n[*] Verified Tool Availability Status:"
+for tool in genus innovus spectre virtuoso; do
     if command -v $tool &> /dev/null; then
         echo "    [OK] $tool -> $(which $tool)"
     else
@@ -141,7 +100,7 @@ for tool in genus innovus spectre virtuoso simvision; do
 done
 
 echo -e "\n======================================================================"
-echo " Cadence Environment Ready!"
+echo " Cadence Environment Ready with IIT BHU License!"
 echo " Quick Execution Commands:"
 echo "   1. Genus Synthesis:   genus -f cadence/scripts/run_genus_synth.tcl"
 echo "   2. Innovus PnR:       innovus -f cadence/scripts/run_innovus_pnr.tcl"
