@@ -1,0 +1,42 @@
+================================================================================
+SYNAPSE-7 // MASTER CADENCE EDA & ASIC PROMPT FOR ANTIGRAVITY (MOBAXTERM)
+================================================================================
+PROJECT:           SYNAPSE-7 (Quantum-Neuromorphic Edge Engine & PQC Coprocessor)
+RESEARCHER:        Arunjyoti Sarma, Ph.D. Scholar, Electronics Engg, IIT (BHU) Varanasi
+LAB SERVER:        dse@dtiresearch.iitbhu.ac.in (172.16.36.157)
+LOCAL WORKSPACE:   C:\Users\IITBHU RESEARCH LAB\OneDrive\Desktop\Arunjyoti_Sarma\My_Coding_files\Synapse-7_Project
+REMOTE WORKSPACE:  /home/dse/SYNAPSE-7
+REMOTE GITHUB:     https://github.com/arunjyotisarmarsece24-jpg/SYNAPSE-7
+CADENCE TOOLS:     /home/install/ (GENUS211, INNOVUS211, SPECTRE211, IC618)
+CENTRAL LICENSE:   5280@14.139.1.126 (Verified IIT BHU License Server)
+================================================================================
+
+--------------------------------------------------------------------------------
+ANTIGRAVITY INVOCATION PROMPT (COPY-PASTE EXACTLY INTO AGY):
+--------------------------------------------------------------------------------
+"Hi Antigravity, we are executing the physical ASIC design and simulation flow for
+the SYNAPSE-7 Quantum-Neuromorphic Hardware Security Engine on dtiresearch.iitbhu.ac.in.
+
+Project Environment:
+- Working Directory: /home/dse/SYNAPSE-7
+- GitHub: https://github.com/arunjyotisarmarsece24-jpg/SYNAPSE-7
+- License Server: export CDS_LIC_FILE=5280@14.139.1.126; export LM_LICENSE_FILE=5280@14.139.1.126
+- Genus 21.1: /home/install/GENUS211/tools.lnx86/synth/bin/64bit/genus
+- Innovus 21.1: /home/install/INNOVUS211/tools.lnx86/innovus/bin/64bit/innovus
+- Spectre 21.1: /home/install/SPECTRE211/tools.lnx86/spectre/bin/64bit/spectre
+- 45nm Foundry LEF: /home/install/FOUNDRY/lan/flow/t1u1/reference_libs/GPDK045/gsclib045_all_v4.4/
+
+Completed Milestone:
+- Cadence Genus ASIC Front-End Synthesis: COMPLETED (34,291 standard cells, 994 sequential registers,
+  33,297 logic gates, Slack = +4,284 ps positive at 100 MHz, 16 MB netlist outputs/synapse7_synth_netlist.v).
+
+Your Mission:
+1. Verify the environment variables and ensure git pull origin main is up to date.
+2. Execute Cadence Innovus Physical Place & Route:
+   Command: innovus -f cadence/scripts/run_innovus_pnr.tcl -win
+   Verify 70% core floorplanning, VDD/VSS power rings, CCOpt clock tree synthesis, NanoRoute metal wiring,
+   and GDSII stream-out to gds/synapse7_top_layout.gds.
+3. Execute Cadence Spectre SPICE simulation for the Quantum Tunneling Memristive Synapse:
+   Command: spectre +preset=cx +aps +mt=28 cadence/scripts/quantum_memristor_spectre.scs
+4. Summarize all ASIC physical design metrics (Core Area, Power, Wire Length, DRC count) for IIT BHU dissertation."
+================================================================================
