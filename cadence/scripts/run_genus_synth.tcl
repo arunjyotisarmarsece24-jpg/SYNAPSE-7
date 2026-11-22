@@ -15,7 +15,22 @@ puts "======================================================================"
 set_db max_cpus_per_server 16
 set_db information_level 7
 
-# 2. Target Technology Library (Generic or TSMC / FreePDK45 / Sky130)
+# Determine Project Root Directory automatically
+if {[file exists "rtl"]} {
+    set PROJ_ROOT "."
+} elseif {[file exists "../rtl"]} {
+    set PROJ_ROOT ".."
+} else {
+    set PROJ_ROOT [file normalize "[file dirname [info script]]/../.."]
+}
+set RTL_DIR "$PROJ_ROOT/rtl"
+set REPORTS_DIR "$PROJ_ROOT/reports"
+set OUTPUTS_DIR "$PROJ_ROOT/outputs"
+
+puts "\[INFO\] Project Root: $PROJ_ROOT"
+puts "\[INFO\] RTL Directory: $RTL_DIR"
+
+# 2. Target Technology Library (Generic, TSMC, SCL 180nm, FreePDK45, or Sky130)
 # If proprietary PDK is not set, Genus uses generic technology mapping
 set TECH_LIB [getenv "CADENCE_TECH_LIB" ""]
 if {$TECH_LIB ne ""} {
@@ -27,7 +42,6 @@ if {$TECH_LIB ne ""} {
 }
 
 # 3. Read RTL Design Sources
-set RTL_DIR "../rtl"
 set_db init_hdl_search_path [list \
     "$RTL_DIR/top" \
     "$RTL_DIR/quantum_neuromorphic" \
@@ -80,21 +94,22 @@ puts "\[INFO\] Starting Gate-Level Optimization (syn_opt)..."
 syn_opt
 
 # 7. Generate ASIC Reports
-file mkdir "../reports"
-file mkdir "../outputs"
+file mkdir $REPORTS_DIR
+file mkdir $OUTPUTS_DIR
 
-report_timing > "../reports/synapse7_timing_report.rpt"
-report_area   > "../reports/synapse7_area_report.rpt"
-report_power  > "../reports/synapse7_power_report.rpt"
-report_qor    > "../reports/synapse7_qor_report.rpt"
+report_timing > "$REPORTS_DIR/synapse7_timing_report.rpt"
+report_area   > "$REPORTS_DIR/synapse7_area_report.rpt"
+report_power  > "$REPORTS_DIR/synapse7_power_report.rpt"
+report_qor    > "$REPORTS_DIR/synapse7_qor_report.rpt"
 
 # 8. Export Gate-Level Netlist & SDC for Innovus PnR
-write_hdl -mapped > "../outputs/synapse7_synth_netlist.v"
-write_sdc > "../outputs/synapse7_synth_constraints.sdc"
+write_hdl -mapped > "$OUTPUTS_DIR/synapse7_synth_netlist.v"
+write_sdc > "$OUTPUTS_DIR/synapse7_synth_constraints.sdc"
 
 puts "======================================================================"
 puts "  Cadence Genus Synthesis Completed Successfully!"
-puts "  Netlist: outputs/synapse7_synth_netlist.v"
-puts "  Reports: reports/synapse7_area_report.rpt"
+puts "  Netlist:     $OUTPUTS_DIR/synapse7_synth_netlist.v"
+puts "  Constraints: $OUTPUTS_DIR/synapse7_synth_constraints.sdc"
+puts "  Reports:     $REPORTS_DIR/synapse7_area_report.rpt"
 puts "======================================================================"
 exit

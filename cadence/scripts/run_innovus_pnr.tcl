@@ -14,13 +14,30 @@ puts "======================================================================"
 # 1. Multi-Threaded Acceleration
 setMultiCpuUsage -localCpu 16
 
+# Determine Project Root Directory automatically
+if {[file exists "outputs/synapse7_synth_netlist.v"]} {
+    set PROJ_ROOT "."
+} elseif {[file exists "../outputs/synapse7_synth_netlist.v"]} {
+    set PROJ_ROOT ".."
+} else {
+    set PROJ_ROOT [file normalize "[file dirname [info script]]/../.."]
+}
+set OUTPUTS_DIR "$PROJ_ROOT/outputs"
+set REPORTS_DIR "$PROJ_ROOT/reports"
+set GDS_DIR "$PROJ_ROOT/gds"
+
+file mkdir $REPORTS_DIR
+file mkdir $OUTPUTS_DIR
+file mkdir $GDS_DIR
+
 # 2. Design Import
-set init_verilog "../outputs/synapse7_synth_netlist.v"
+set init_verilog "$OUTPUTS_DIR/synapse7_synth_netlist.v"
 set init_top_cell "synapse7_top"
 set init_pwr_net "VDD"
 set init_gnd_net "VSS"
-set init_mmmc_file "../outputs/synapse7_synth_constraints.sdc"
+set init_mmmc_file "$OUTPUTS_DIR/synapse7_synth_constraints.sdc"
 
+puts "\[INFO\] Loading gate-level netlist: $init_verilog"
 init_design
 
 # 3. Floorplan Initialization (Core Utilization 70%, Aspect Ratio 1.0)
@@ -51,20 +68,31 @@ setNanoRouteMode -routeWithSiDriven true -routeWithTimingDriven true
 routeDesign
 
 # 8. Post-Route Optimization & Timing Signoff
+puts "\[INFO\] Running Post-Route Timing Optimization..."
 optDesign -postRoute
-report_timing > "../reports/innovus_postroute_timing.rpt"
-report_power  > "../reports/innovus_postroute_power.rpt"
+report_timing > "$REPORTS_DIR/innovus_postroute_timing.rpt"
+report_power  > "$REPORTS_DIR/innovus_postroute_power.rpt"
 
 # 9. Physical Verification (DRC & Geometry)
-verifyGeometry > "../reports/innovus_drc.rpt"
-verifyConnectivity > "../reports/innovus_lvs.rpt"
+puts "\[INFO\] Running Physical DRC & LVS Verifications..."
+verifyGeometry > "$REPORTS_DIR/innovus_drc.rpt"
+verifyConnectivity > "$REPORTS_DIR/innovus_lvs.rpt"
 
-# 10. GDSII Stream-Out
-file mkdir "../gds"
-streamOut "../gds/synapse7_top_layout.gds" -mapFile "gds2.map" -merge "standard_cells.gds" -stripes 1
+# 10. Design Exchange & GDSII Stream-Out
+puts "\[INFO\] Exporting Physical DEF, Netlist, and GDSII..."
+defOut -floorplan -netlist -routing "$OUTPUTS_DIR/synapse7_pnr.def"
+saveNetlist "$OUTPUTS_DIR/synapse7_pnr_netlist.v"
+
+if {[file exists "gds2.map"]} {
+    streamOut "$GDS_DIR/synapse7_top_layout.gds" -mapFile "gds2.map" -merge "standard_cells.gds" -stripes 1
+} else {
+    streamOut "$GDS_DIR/synapse7_top_layout.gds" -stripes 1
+}
 
 puts "======================================================================"
 puts "  Cadence Innovus PnR Flow Completed Successfully!"
-puts "  GDSII Layout: gds/synapse7_top_layout.gds"
+puts "  GDSII Layout: $GDS_DIR/synapse7_top_layout.gds"
+puts "  DEF File:     $OUTPUTS_DIR/synapse7_pnr.def"
+puts "  Reports:      $REPORTS_DIR/innovus_drc.rpt"
 puts "======================================================================"
 exit

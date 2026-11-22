@@ -12,7 +12,7 @@ echo "  SYNAPSE-7 // Cadence EDA & GPU Environment Setup"
 echo "  Host: $(hostname) | User: $(whoami) | IP: 172.16.36.157"
 echo "======================================================================"
 
-# 1. Check & Verify GPU Availability on Server
+# 1. Check & Verify GPU Hardware Acceleration
 echo -e "\n[*] Step 1: Checking GPU Hardware Acceleration..."
 if command -v nvidia-smi &> /dev/null; then
     echo "[+] NVIDIA Driver & GPUs Detected:"
@@ -34,7 +34,7 @@ else
     echo "[+] X11 DISPLAY is set to: $DISPLAY"
 fi
 
-# Quick X11 Test (if xdpyinfo or xclock is available)
+# Quick X11 Test
 if command -v xdpyinfo &> /dev/null; then
     if xdpyinfo > /dev/null 2>&1; then
         echo "[+] X11 display connection verified successfully!"
@@ -46,12 +46,14 @@ fi
 # 3. Environment & License Configuration for Cadence
 echo -e "\n[*] Step 3: Setting up Cadence Licenses & Paths..."
 
-# Typical Indian University / IIT Lab paths (adjust to department server structure):
-POSSIBLE_LICENSE_SERVERS=(
-    "5280@172.16.36.157"
-    "5280@172.16.36.1"
-    "5280@licserver.iitbhu.ac.in"
-)
+# License file environment
+if [ -z "$CDS_LIC_FILE" ] && [ -z "$LM_LICENSE_FILE" ]; then
+    export CDS_LIC_FILE="5280@172.16.36.157:5280@172.16.36.1:5280@licserver.iitbhu.ac.in"
+    export LM_LICENSE_FILE=$CDS_LIC_FILE
+    echo "[+] Set default Cadence license pointers: $CDS_LIC_FILE"
+else
+    echo "[+] License pointer already active: ${CDS_LIC_FILE:-$LM_LICENSE_FILE}"
+fi
 
 # If Environment Modules are used in the lab:
 if command -v module &> /dev/null; then
@@ -62,15 +64,46 @@ if command -v module &> /dev/null; then
     module load cadence/spectre 2>/dev/null || module load spectre 2>/dev/null || true
 fi
 
+# Auto-discover common Cadence installation paths if binaries not in PATH
+POSSIBLE_CADENCE_ROOTS=(
+    "/tools/cadence"
+    "/opt/cadence"
+    "/eda/cadence"
+    "/cadence"
+    "/usr/local/cadence"
+)
+
+for root in "${POSSIBLE_CADENCE_ROOTS[@]}"; do
+    if [ -d "$root" ]; then
+        echo "[+] Found Cadence root at: $root"
+        for bindir in $(find "$root" -maxdepth 3 -type d -name "bin" 2>/dev/null); do
+            export PATH="$bindir:$PATH"
+        done
+        break
+    fi
+done
+
 # Set Multi-Threading Defaults for Cadence Spectre
-export SPECTRE_DEFAULTS="-+preset=cx -+aps -+mt=$(nproc)"
-echo "[+] Spectre parallel acceleration set to $(nproc) CPU threads."
+NUM_CORES=$(nproc 2>/dev/null || echo 8)
+export SPECTRE_DEFAULTS="-+preset=cx -+aps -+mt=$NUM_CORES"
+echo "[+] Spectre parallel acceleration set to $NUM_CORES CPU threads."
+
+# Summary of Cadence Binaries
+echo -e "\n[*] Tool Availability Status:"
+for tool in genus innovus spectre virtuoso simvision; do
+    if command -v $tool &> /dev/null; then
+        echo "    [OK] $tool -> $(which $tool)"
+    else
+        echo "    [--] $tool not in PATH (check module load or ask lab admin)"
+    fi
+done
 
 echo -e "\n======================================================================"
 echo " Cadence Environment Ready!"
-echo " Quick Commands:"
-echo "   - Virtuoso GUI:  virtuoso &"
-echo "   - Genus Synth:   genus -f cadence/scripts/run_genus_synth.tcl"
-echo "   - Innovus PnR:   innovus -f cadence/scripts/run_innovus_pnr.tcl"
-echo "   - Spectre SPICE: spectre cadence/scripts/quantum_memristor_spectre.scs"
+echo " Quick Execution Commands:"
+echo "   1. Genus Synthesis:   genus -f cadence/scripts/run_genus_synth.tcl"
+echo "   2. Innovus PnR:       innovus -f cadence/scripts/run_innovus_pnr.tcl"
+echo "   3. Spectre SPICE:     spectre cadence/scripts/quantum_memristor_spectre.scs"
+echo "   4. Virtuoso GUI:      virtuoso &"
+echo "   5. Automated Flow:    bash cadence/scripts/run_full_cadence_flow.sh"
 echo "======================================================================"
