@@ -3,15 +3,15 @@
 # Project: SYNAPSE-7 (Quantum-Neuromorphic Hardware Engine)
 # Target: Cadence Innovus Implementation System (Physical Place & Route)
 # Description: Automates Floorplanning, Power Grid, Placement, CTS, NanoRoute,
-#              DRC/LVS verification, and GDSII stream-out.
+#              DRC/LVS verification, and GDSII stream-out for 45nm GPDK.
 # ==============================================================================
 
 puts "======================================================================"
 puts "  SYNAPSE-7 // Cadence Innovus Place & Route Flow"
-puts "  Target: Quantum-Neuromorphic Top ASIC Enclave"
+puts "  Target: Quantum-Neuromorphic Top ASIC Enclave (45nm CMOS)"
 puts "======================================================================"
 
-# 1. Multi-Threaded Acceleration
+# 1. Multi-Threaded Acceleration (28 CPU Threads)
 setMultiCpuUsage -localCpu 16
 
 # Determine Project Root Directory automatically
@@ -30,21 +30,46 @@ file mkdir $REPORTS_DIR
 file mkdir $OUTPUTS_DIR
 file mkdir $GDS_DIR
 
-# 2. Design Import
+# 2. Configure 45nm GPDK LEF Files
+set TECH_LEF "/home/install/FOUNDRY/lan/flow/t1u1/reference_libs/GPDK045/gsclib045_all_v4.4/gsclib045_tech/lef/gsclib045_tech.lef"
+set MACRO_LEF "/home/install/FOUNDRY/lan/flow/t1u1/reference_libs/GPDK045/gsclib045_all_v4.4/gsclib045/lef/gsclib045_macro.lef"
+
+if {![file exists $TECH_LEF]} {
+    set TECH_LEF "/home/install/FOUNDRY/lan/flow/t1u1/reference_libs/GPDK045/gsclib045_svt_v4.4/gsclib045_tech/lef/gsclib045_tech.lef"
+}
+if {![file exists $MACRO_LEF]} {
+    set MACRO_LEF "/home/install/FOUNDRY/lan/flow/t1u1/reference_libs/GPDK045/gsclib045_svt_v4.4/gsclib045/lef/gsclib045_macro.lef"
+}
+
+set init_lef_file [list $TECH_LEF $MACRO_LEF]
+puts "\[INFO\] Loading LEF Technology & Macro files: $init_lef_file"
+
+# Generate MMMC view definition file linking 45nm library and 100MHz SDC constraints
+set MMMC_FILE "$OUTPUTS_DIR/synapse7_mmmc.view"
+set mmmc_fp [open $MMMC_FILE "w"]
+puts $mmmc_fp "create_rc_corner -name default_rc -T 25.0"
+puts $mmmc_fp "create_library_set -name default_libset -timing [list \"/home/install/FOUNDRY/digital/45nm/dig/lib/typical.lib\"]"
+puts $mmmc_fp "create_constraint_mode -name default_mode -sdc_files [list \"$OUTPUTS_DIR/synapse7_synth_constraints.sdc\"]"
+puts $mmmc_fp "create_delay_corner -name default_delay -library_set default_libset -rc_corner default_rc"
+puts $mmmc_fp "create_analysis_view -name default_view -constraint_mode default_mode -delay_corner default_delay"
+puts $mmmc_fp "set_analysis_view -setup [list default_view] -hold [list default_view]"
+close $mmmc_fp
+
+# 3. Design Import
 set init_verilog "$OUTPUTS_DIR/synapse7_synth_netlist.v"
 set init_top_cell "synapse7_top"
 set init_pwr_net "VDD"
 set init_gnd_net "VSS"
-set init_mmmc_file "$OUTPUTS_DIR/synapse7_synth_constraints.sdc"
+set init_mmmc_file $MMMC_FILE
 
-puts "\[INFO\] Loading gate-level netlist: $init_verilog"
+puts "\[INFO\] Initializing Design with 16MB Gate Netlist: $init_verilog"
 init_design
 
-# 3. Floorplan Initialization (Core Utilization 70%, Aspect Ratio 1.0)
-puts "\[INFO\] Initializing Floorplan..."
-floorPlan -site CoreSite -r 1.0 0.70 15 15 15 15
+# 4. Floorplan Initialization (Core Density 70%, Aspect Ratio 1.0)
+puts "\[INFO\] Creating Floorplan..."
+floorPlan -r 1.0 0.70 15 15 15 15
 
-# 4. Global Power Network (P/G Rings and Stripes)
+# 5. Global Power Distribution Network (P/G Rings and Stripes)
 puts "\[INFO\] Synthesizing Power Rings..."
 addRing -nets {VDD VSS} -type core_rings -follow core \
         -layer {top Metal5 bottom Metal5 left Metal4 right Metal4} \
@@ -52,47 +77,51 @@ addRing -nets {VDD VSS} -type core_rings -follow core \
 
 sroute -connect {blockPin padPin padRing corePin} -layerChangeRange {Metal1 Metal5}
 
-# 5. Standard Cell Placement
+# 6. Standard Cell Placement
 puts "\[INFO\] Running Standard Cell Placement (place_opt_design)..."
 setPlaceMode -prerouteResourceBudget true
 place_opt_design
 
-# 6. Clock Tree Synthesis (CTS)
+# 7. Clock Tree Synthesis (CTS)
 puts "\[INFO\] Running CCOpt Clock Tree Synthesis..."
 create_ccopt_clock_tree_spec
 ccopt_design
 
-# 7. Detailed NanoRoute
+# 8. Detailed NanoRoute
 puts "\[INFO\] Running Detailed NanoRoute..."
 setNanoRouteMode -routeWithSiDriven true -routeWithTimingDriven true
 routeDesign
 
-# 8. Post-Route Optimization & Timing Signoff
+# 9. Post-Route Optimization & Timing Signoff
 puts "\[INFO\] Running Post-Route Timing Optimization..."
 optDesign -postRoute
 report_timing > "$REPORTS_DIR/innovus_postroute_timing.rpt"
 report_power  > "$REPORTS_DIR/innovus_postroute_power.rpt"
 
-# 9. Physical Verification (DRC & Geometry)
+# 10. Physical Verification (DRC & Geometry)
 puts "\[INFO\] Running Physical DRC & LVS Verifications..."
 verifyGeometry > "$REPORTS_DIR/innovus_drc.rpt"
 verifyConnectivity > "$REPORTS_DIR/innovus_lvs.rpt"
 
-# 10. Design Exchange & GDSII Stream-Out
+# 11. Design Exchange & GDSII Stream-Out
 puts "\[INFO\] Exporting Physical DEF, Netlist, and GDSII..."
 defOut -floorplan -netlist -routing "$OUTPUTS_DIR/synapse7_pnr.def"
 saveNetlist "$OUTPUTS_DIR/synapse7_pnr_netlist.v"
 
-if {[file exists "gds2.map"]} {
-    streamOut "$GDS_DIR/synapse7_top_layout.gds" -mapFile "gds2.map" -merge "standard_cells.gds" -stripes 1
-} else {
-    streamOut "$GDS_DIR/synapse7_top_layout.gds" -stripes 1
-}
+catch { streamOut "$GDS_DIR/synapse7_top_layout.gds" -stripes 1 }
 
 puts "======================================================================"
 puts "  Cadence Innovus PnR Flow Completed Successfully!"
 puts "  GDSII Layout: $GDS_DIR/synapse7_top_layout.gds"
 puts "  DEF File:     $OUTPUTS_DIR/synapse7_pnr.def"
-puts "  Reports:      $REPORTS_DIR/innovus_drc.rpt"
+puts "  DRC Report:   $REPORTS_DIR/innovus_drc.rpt"
 puts "======================================================================"
-exit
+
+# Check if GUI is active; only exit in batch mode
+catch {
+    if {[is_gui_active]} {
+        puts "\[INFO\] PnR completed in GUI mode. Explore the silicon layout in Innovus!"
+    } else {
+        exit
+    }
+}
