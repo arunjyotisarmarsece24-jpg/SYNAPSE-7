@@ -64,8 +64,9 @@ if command -v module &> /dev/null; then
     module load cadence/spectre 2>/dev/null || module load spectre 2>/dev/null || true
 fi
 
-# Auto-discover common Cadence installation paths if binaries not in PATH
+# Auto-discover Cadence installation paths under /home/install and other common roots
 POSSIBLE_CADENCE_ROOTS=(
+    "/home/install"
     "/tools/cadence"
     "/opt/cadence"
     "/eda/cadence"
@@ -73,13 +74,54 @@ POSSIBLE_CADENCE_ROOTS=(
     "/usr/local/cadence"
 )
 
-for root in "${POSSIBLE_CADENCE_ROOTS[@]}"; do
-    if [ -d "$root" ]; then
-        echo "[+] Found Cadence root at: $root"
-        for bindir in $(find "$root" -maxdepth 3 -type d -name "bin" 2>/dev/null); do
-            export PATH="$bindir:$PATH"
-        done
-        break
+for install_root in "${POSSIBLE_CADENCE_ROOTS[@]}"; do
+    if [ -d "$install_root" ]; then
+        echo "[+] Searching for Cadence tools in: $install_root"
+        
+        # 1. Genus Synthesis
+        if ! command -v genus &> /dev/null; then
+            GENUS_BIN=$(find "$install_root" -maxdepth 6 -name "genus" -type f -perm /111 2>/dev/null | grep -E "bin.*genus" | head -n 1)
+            if [ -n "$GENUS_BIN" ]; then
+                export PATH="$(dirname "$GENUS_BIN"):$PATH"
+                echo "    [+] Discovered Genus at: $GENUS_BIN"
+            fi
+        fi
+        
+        # 2. Innovus Place & Route
+        if ! command -v innovus &> /dev/null; then
+            INNOVUS_BIN=$(find "$install_root" -maxdepth 6 -name "innovus" -type f -perm /111 2>/dev/null | grep -E "bin.*innovus" | head -n 1)
+            if [ -n "$INNOVUS_BIN" ]; then
+                export PATH="$(dirname "$INNOVUS_BIN"):$PATH"
+                echo "    [+] Discovered Innovus at: $INNOVUS_BIN"
+            fi
+        fi
+
+        # 3. Spectre SPICE Simulator
+        if ! command -v spectre &> /dev/null; then
+            SPECTRE_BIN=$(find "$install_root" -maxdepth 6 -name "spectre" -type f -perm /111 2>/dev/null | grep -E "bin.*spectre" | head -n 1)
+            if [ -n "$SPECTRE_BIN" ]; then
+                export PATH="$(dirname "$SPECTRE_BIN"):$PATH"
+                echo "    [+] Discovered Spectre at: $SPECTRE_BIN"
+            fi
+        fi
+
+        # 4. Virtuoso (IC / Custom IC)
+        if ! command -v virtuoso &> /dev/null; then
+            VIRTUOSO_BIN=$(find "$install_root" -maxdepth 6 -name "virtuoso" -type f -perm /111 2>/dev/null | head -n 1)
+            if [ -n "$VIRTUOSO_BIN" ]; then
+                export PATH="$(dirname "$VIRTUOSO_BIN"):$PATH"
+                echo "    [+] Discovered Virtuoso at: $VIRTUOSO_BIN"
+            fi
+        fi
+
+        # 5. SimVision Waveform Viewer
+        if ! command -v simvision &> /dev/null; then
+            SIMVISION_BIN=$(find "$install_root" -maxdepth 6 -name "simvision" -type f -perm /111 2>/dev/null | head -n 1)
+            if [ -n "$SIMVISION_BIN" ]; then
+                export PATH="$(dirname "$SIMVISION_BIN"):$PATH"
+                echo "    [+] Discovered SimVision at: $SIMVISION_BIN"
+            fi
+        fi
     fi
 done
 
@@ -94,7 +136,7 @@ for tool in genus innovus spectre virtuoso simvision; do
     if command -v $tool &> /dev/null; then
         echo "    [OK] $tool -> $(which $tool)"
     else
-        echo "    [--] $tool not in PATH (check module load or ask lab admin)"
+        echo "    [--] $tool not in PATH"
     fi
 done
 
