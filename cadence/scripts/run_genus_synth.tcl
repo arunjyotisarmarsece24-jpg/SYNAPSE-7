@@ -30,14 +30,15 @@ set OUTPUTS_DIR "$PROJ_ROOT/outputs"
 puts "\[INFO\] Project Root: $PROJ_ROOT"
 puts "\[INFO\] RTL Directory: $RTL_DIR"
 
-# 2. Target Technology Library (Auto-Discovers Lab 45nm Foundry PDK)
+# 2. Target Technology Library
+# Prioritize Nangate FreePDK45 for physical micron area dimensions (um^2)
 set TECH_LIB ""
 if {[info exists ::env(CADENCE_TECH_LIB)] && $::env(CADENCE_TECH_LIB) ne ""} {
     set TECH_LIB $::env(CADENCE_TECH_LIB)
-} elseif {[file exists "/home/install/FOUNDRY/digital/45nm/dig/lib/typical.lib"]} {
-    set TECH_LIB "/home/install/FOUNDRY/digital/45nm/dig/lib/typical.lib"
 } elseif {[file exists "/home/install/FOUNDRY/digital/45nm/NangateOpenCellLibrary_v1.00_20080225/liberty/FreePDK45_lib_v1.0_typical.lib"]} {
     set TECH_LIB "/home/install/FOUNDRY/digital/45nm/NangateOpenCellLibrary_v1.00_20080225/liberty/FreePDK45_lib_v1.0_typical.lib"
+} elseif {[file exists "/home/install/FOUNDRY/digital/45nm/dig/lib/typical.lib"]} {
+    set TECH_LIB "/home/install/FOUNDRY/digital/45nm/dig/lib/typical.lib"
 } elseif {[file exists "/home/install/FOUNDRY/digital/90nm/dig/lib/typical.lib"]} {
     set TECH_LIB "/home/install/FOUNDRY/digital/90nm/dig/lib/typical.lib"
 } elseif {[file exists "/home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib"]} {
