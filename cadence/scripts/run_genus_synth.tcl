@@ -31,7 +31,11 @@ puts "\[INFO\] Project Root: $PROJ_ROOT"
 puts "\[INFO\] RTL Directory: $RTL_DIR"
 
 # 2. Target Technology Library (Generic, TSMC, SCL 180nm, FreePDK45, or Sky130)
-set TECH_LIB [getenv "CADENCE_TECH_LIB" ""]
+set TECH_LIB ""
+if {[info exists ::env(CADENCE_TECH_LIB)]} {
+    set TECH_LIB $::env(CADENCE_TECH_LIB)
+}
+
 if {$TECH_LIB ne ""} {
     set_db target_library $TECH_LIB
     set_db link_library $TECH_LIB
