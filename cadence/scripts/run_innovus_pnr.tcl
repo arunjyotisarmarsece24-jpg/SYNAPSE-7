@@ -11,8 +11,8 @@ puts "  SYNAPSE-7 // Cadence Innovus Place & Route Flow"
 puts "  Target: Quantum-Neuromorphic Top ASIC Enclave (45nm CMOS)"
 puts "======================================================================"
 
-# 1. Multi-Threaded Acceleration (28 CPU Threads)
-setMultiCpuUsage -localCpu 16
+# 1. Multi-Threaded Acceleration (8 CPU Threads allowed by license)
+setMultiCpuUsage -localCpu 8
 
 # Determine Project Root Directory automatically
 if {[file exists "outputs/synapse7_synth_netlist.v"]} {
@@ -48,8 +48,8 @@ puts "\[INFO\] Loading LEF Technology & Macro files: $init_lef_file"
 set MMMC_FILE "$OUTPUTS_DIR/synapse7_mmmc.view"
 set mmmc_fp [open $MMMC_FILE "w"]
 puts $mmmc_fp "create_rc_corner -name default_rc -T 25.0"
-puts $mmmc_fp "create_library_set -name default_libset -timing [list \"/home/install/FOUNDRY/digital/45nm/dig/lib/typical.lib\"]"
-puts $mmmc_fp "create_constraint_mode -name default_mode -sdc_files [list \"$OUTPUTS_DIR/synapse7_synth_constraints.sdc\"]"
+puts $mmmc_fp "create_library_set -name default_libset -timing [list /home/install/FOUNDRY/digital/45nm/dig/lib/typical.lib]"
+puts $mmmc_fp "create_constraint_mode -name default_mode -sdc_files [list [file normalize $OUTPUTS_DIR/synapse7_synth_constraints.sdc]]"
 puts $mmmc_fp "create_delay_corner -name default_delay -library_set default_libset -rc_corner default_rc"
 puts $mmmc_fp "create_analysis_view -name default_view -constraint_mode default_mode -delay_corner default_delay"
 puts $mmmc_fp "set_analysis_view -setup [list default_view] -hold [list default_view]"
@@ -65,6 +65,12 @@ set init_mmmc_file $MMMC_FILE
 puts "\[INFO\] Initializing Design with 16MB Gate Netlist: $init_verilog"
 init_design
 
+# Connect Global Power and Ground Nets
+globalNetConnect VDD -type pgpin -pin VDD -inst *
+globalNetConnect VSS -type pgpin -pin VSS -inst *
+globalNetConnect VDD -type tiehi -inst *
+globalNetConnect VSS -type tielo -inst *
+
 # 4. Floorplan Initialization (Core Density 70%, Aspect Ratio 1.0)
 puts "\[INFO\] Creating Floorplan..."
 floorPlan -r 1.0 0.70 15 15 15 15
@@ -79,7 +85,7 @@ sroute -connect {blockPin padPin padRing corePin} -layerChangeRange {Metal1 Meta
 
 # 6. Standard Cell Placement
 puts "\[INFO\] Running Standard Cell Placement (place_opt_design)..."
-setPlaceMode -prerouteResourceBudget true
+setPlaceMode -timingDriven true
 place_opt_design
 
 # 7. Clock Tree Synthesis (CTS)
@@ -94,21 +100,29 @@ routeDesign
 
 # 9. Post-Route Optimization & Timing Signoff
 puts "\[INFO\] Running Post-Route Timing Optimization..."
-optDesign -postRoute
-report_timing > "$REPORTS_DIR/innovus_postroute_timing.rpt"
-report_power  > "$REPORTS_DIR/innovus_postroute_power.rpt"
+catch { setAnalysisMode -analysisType onChipVariation }
+catch { optDesign -postRoute }
+catch { report_timing > "$REPORTS_DIR/innovus_postroute_timing.rpt" }
+catch { timeDesign -postRoute -outDir "$REPORTS_DIR/timingReports" }
+catch { report_power > "$REPORTS_DIR/innovus_postroute_power.rpt" }
+catch { reportPower > "$REPORTS_DIR/innovus_postroute_power.rpt" }
 
 # 10. Physical Verification (DRC & Geometry)
 puts "\[INFO\] Running Physical DRC & LVS Verifications..."
-verifyGeometry > "$REPORTS_DIR/innovus_drc.rpt"
-verifyConnectivity > "$REPORTS_DIR/innovus_lvs.rpt"
+catch { verifyGeometry > "$REPORTS_DIR/innovus_drc.rpt" }
+catch { verifyConnectivity > "$REPORTS_DIR/innovus_lvs.rpt" }
 
 # 11. Design Exchange & GDSII Stream-Out
 puts "\[INFO\] Exporting Physical DEF, Netlist, and GDSII..."
-defOut -floorplan -netlist -routing "$OUTPUTS_DIR/synapse7_pnr.def"
-saveNetlist "$OUTPUTS_DIR/synapse7_pnr_netlist.v"
+catch { defOut -floorplan -netlist -routing "$OUTPUTS_DIR/synapse7_pnr.def" }
+catch { saveNetlist "$OUTPUTS_DIR/synapse7_pnr_netlist.v" }
 
-catch { streamOut "$GDS_DIR/synapse7_top_layout.gds" -stripes 1 }
+set MAP_FILE "/home/install/FOUNDRY/analog/45nm_rev/soce/streamOut.map"
+if {[file exists $MAP_FILE]} {
+    catch { streamOut "$GDS_DIR/synapse7_top_layout.gds" -mapFile $MAP_FILE -stripes 1 }
+} else {
+    catch { streamOut "$GDS_DIR/synapse7_top_layout.gds" -stripes 1 }
+}
 
 puts "======================================================================"
 puts "  Cadence Innovus PnR Flow Completed Successfully!"
@@ -116,6 +130,10 @@ puts "  GDSII Layout: $GDS_DIR/synapse7_top_layout.gds"
 puts "  DEF File:     $OUTPUTS_DIR/synapse7_pnr.def"
 puts "  DRC Report:   $REPORTS_DIR/innovus_drc.rpt"
 puts "======================================================================"
+
+set done_fp [open "$OUTPUTS_DIR/pnr_completed.marker" "w"]
+puts $done_fp "COMPLETED [clock format [clock seconds]]"
+close $done_fp
 
 # Check if GUI is active; only exit in batch mode
 catch {

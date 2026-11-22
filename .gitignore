@@ -28,3 +28,31 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# Cadence EDA runtime ephemeral dumps
+genus.cmd*
+genus.log*
+innovus.cmd*
+innovus.log*
+innovus.logv*
+pvsUI_*.log
+*.tstamp
+*.tif.gz
+top.mtarpt
+CTE_loops.rpt
+*.raw/
+*.ahdlSimDB/
+fv/
+synapse7_top.antenna.lef
+
+# Whitelist vital deliverables & reports
+!reports/
+!reports/*.rpt
+!reports/innovus_pnr.log
+reports/innovus_pnr.cmd*
+reports/innovus_pnr.log[0-9]*
+reports/innovus_pnr.logv*
+!outputs/
+!outputs/*
+!gds/
+!gds/*

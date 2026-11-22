@@ -48,7 +48,7 @@ fi
 # Stage 2: Cadence Innovus Place & Route
 echo -e "\n>>> STAGE 2: Executing Cadence Innovus Physical Place & Route..."
 if command -v innovus &> /dev/null; then
-    innovus -f "$SCRIPT_DIR/run_innovus_pnr.tcl" -log "$PROJ_ROOT/reports/innovus_pnr.log"
+    innovus -files "$SCRIPT_DIR/run_innovus_pnr.tcl" -log "$PROJ_ROOT/reports/innovus_pnr.log"
     echo "[+] Innovus Place & Route completed successfully!"
 else
     echo "[!] 'innovus' command not found. Simulating physical layout report..."

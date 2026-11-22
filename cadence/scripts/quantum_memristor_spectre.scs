@@ -24,9 +24,6 @@ subckt quantum_memristor (p n)
     + v_th_p = 0.65         // Positive switching threshold (V)
     + v_th_n = -0.65        // Negative switching threshold (V)
 
-    // Internal state node representing w(t)
-    nodes (w_state)
-
     // State evolution: dw/dt = f(v) * window(w)
     // Modeled using a state capacitor and non-linear voltage-controlled current source
     Cw (w_state 0) capacitor c=1.0p ic=w_init
@@ -34,15 +31,15 @@ subckt quantum_memristor (p n)
     // Non-linear state drift with quantum tunneling window function
     // Joglekar window function: f_win(w) = 1 - (2*w - 1)^4
     // Positive pulse pushes w towards 0 (R_on), negative pulse pushes towards 1 (R_off)
-    Gw (w_state 0) bsource i = (
-        (V(p,n) > v_th_p) ? -eta * (V(p,n) - v_th_p) * (1.0 - pow(2.0*V(w_state) - 1.0, 4)) :
-        (V(p,n) < v_th_n) ? -eta * (V(p,n) - v_th_n) * (1.0 - pow(2.0*V(w_state) - 1.0, 4)) : 0.0
+    Gw (w_state 0) bsource i = ( \
+        (v(p,n) > v_th_p) ? -eta * (v(p,n) - v_th_p) * (1.0 - pow(2.0*v(w_state) - 1.0, 4)) : \
+        (v(p,n) < v_th_n) ? -eta * (v(p,n) - v_th_n) * (1.0 - pow(2.0*v(w_state) - 1.0, 4)) : 0.0 \
     )
 
     // Memristive Conductance: I(p, n) = V(p, n) * G(w)
     // Quantum tunneling correction: exp(-alpha * w)
-    Gmem (p n) bsource i = V(p,n) / (
-        (1.0 - V(w_state)) * r_on + V(w_state) * r_off * exp(alpha * V(w_state))
+    Gmem (p n) bsource i = v(p,n) / ( \
+        (1.0 - v(w_state)) * r_on + v(w_state) * r_off * exp(alpha * v(w_state)) \
     )
 ends quantum_memristor
 

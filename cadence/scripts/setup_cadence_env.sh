@@ -31,14 +31,12 @@ export SPECTREHOME="/home/install/SPECTRE211"
 export CDSHOME="/home/install/IC618"
 
 # Exact 64-bit binary paths discovered from /home/install/cshrc
-export PATH="/home/install/GENUS211/tools.lnx86/synth/bin/64bit:\
-/home/install/INNOVUS211/tools.lnx86/innovus/bin/64bit:\
-/home/install/SPECTRE211/tools.lnx86/spectre/bin/64bit:\
-/home/install/IC618/tools.lnx86/dfII/bin:\
+export PATH="/home/install/INNOVUS211/bin:\
 /home/install/GENUS211/bin:\
-/home/install/INNOVUS211/bin:\
 /home/install/SPECTRE211/bin:\
-/home/install/IC618/bin:$PATH"
+/home/install/IC618/bin:\
+/home/install/IC618/tools/bin:\
+/home/install/IC618/tools.lnx86/dfII/bin:$PATH"
 
 # Library paths
 export LD_LIBRARY_PATH="/home/install/GENUS211/tools.lnx86/lib/64bit:\
@@ -48,11 +46,12 @@ export LD_LIBRARY_PATH="/home/install/GENUS211/tools.lnx86/lib/64bit:\
 /usr/lib64:$LD_LIBRARY_PATH"
 
 # Bash Aliases for convenience
-alias genus='/home/install/GENUS211/tools.lnx86/synth/bin/64bit/genus'
-alias innovus='/home/install/INNOVUS211/tools.lnx86/innovus/bin/64bit/innovus'
+alias genus='/home/install/GENUS211/bin/genus'
+alias innovus='/home/install/INNOVUS211/bin/innovus'
+alias spectre='/home/install/SPECTRE211/bin/spectre'
 
 # Multi-threading for 28 CPU threads
-export SPECTRE_DEFAULTS="-+preset=cx -+aps -+mt=28"
+export SPECTRE_DEFAULTS="+preset=cx +mt=28"
 
 echo -e "\n[*] Verified Tool Availability Status:"
 for tool in genus innovus; do
